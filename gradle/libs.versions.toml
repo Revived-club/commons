@@ -1,0 +1,23 @@
+[versions]
+guava = "33.4.5-jre"
+junit = "4.13.2"
+jedis = "5.1.0"
+shadow = "9.3.1"
+jetbrainsannotations = "26.0.2-1"
+minecraft = '1.21.11-R0.1-SNAPSHOT'
+velocity = "3.4.0-SNAPSHOT"
+worldguard = "7.0.10"
+kubernetes = "7.3.1"
+
+[libraries]
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
+junit = { module = "junit:junit", version.ref = "junit" }
+jetbrainsannotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsannotations" }
+papermc =  { module = "io.papermc.paper:paper-api", version.ref = "minecraft"}
+velocity = { module = "com.velocitypowered:velocity-api", version.ref = "velocity" }
+worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
+kubernetes = { module = "io.fabric8:kubernetes-client", version.ref = "kubernetes" }
+
+[plugins]
+shadow = { id =  "com.gradleup.shadow", version.ref = "shadow" }
