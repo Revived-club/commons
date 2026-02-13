@@ -12,7 +12,7 @@ dependencies {
     implementation(libs.jetbrainsannotations)
     implementation(libs.kubernetes)
     implementation(libs.gson)
-    implementation(libs.bson)
+    implementation(libs.mongo)
 }
 
 java {

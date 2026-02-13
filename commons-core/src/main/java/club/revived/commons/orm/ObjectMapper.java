@@ -7,9 +7,8 @@ import club.revived.commons.orm.annotations.Entity;
 public interface ObjectMapper<T> {
 
   @NotNull
-  Entity read(final @NotNull T object, final @NotNull Class<Entity> clazz);
+  <E extends Entity> E read(final @NotNull T object, final @NotNull Class<E> clazz);
 
   @NotNull
   T write(final @NotNull Object object);
-
 }

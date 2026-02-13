@@ -1,5 +1,7 @@
 package club.revived.commons.orm.mongodb;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.bson.Document;
@@ -9,6 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
+import club.revived.commons.Tuple;
 import club.revived.commons.orm.ObjectMapper;
 import club.revived.commons.orm.annotations.Entity;
 import club.revived.commons.orm.annotations.Identifier;
@@ -16,37 +19,47 @@ import club.revived.commons.orm.annotations.Ignore;
 
 public final class MongoObjectMapper implements ObjectMapper<Document> {
 
-  private final Gson gson = new GsonBuilder()
-      .serializeNulls()
-      .create();
+  private Gson gson;
+
+  public MongoObjectMapper(final List<Tuple<Class<?>, Object>> adapters) {
+    final var gsonBuilder = new GsonBuilder()
+        .serializeNulls();
+
+    for (final var adapter : adapters) {
+      gsonBuilder.registerTypeAdapter(adapter.key(), adapter.val());
+    }
+
+    this.gson = gsonBuilder.create();
+  }
+
+  public MongoObjectMapper() {
+    this(new ArrayList<>());
+  }
 
   @NotNull
   @Override
-  public Entity read(final @NotNull Document object, final @NotNull Class<Entity> clazz) {
+  public <T extends Entity> T read(@NotNull final Document document, @NotNull final Class<T> clazz) {
     try {
-      final var instance = clazz.getDeclaredConstructor().newInstance();
+      final T instance = clazz.getDeclaredConstructor().newInstance();
 
       for (final var field : clazz.getDeclaredFields()) {
         field.setAccessible(true);
 
-        if (field.isAnnotationPresent(Ignore.class)) {
+        if (field.isAnnotationPresent(Ignore.class))
           continue;
-        }
 
-        final var fieldName = field.getName();
-        Object value;
+        final String fieldName = field.getName();
+        Object value = null;
 
-        if (field.getType().isAssignableFrom(UUID.class) && fieldName.equals("uuid")) {
-          value = object.get("_id");
-          if (value != null) {
-            if (value instanceof String) {
-              value = UUID.fromString((String) value);
-            }
+        if (field.isAnnotationPresent(Identifier.class)) {
+          value = document.get("_id");
+          if (value != null && field.getType().equals(UUID.class) && value instanceof String) {
+            value = UUID.fromString((String) value);
           }
         } else {
-          value = object.get(fieldName);
+          value = document.get(fieldName);
 
-          if (value != null && value.equals("null")) {
+          if ("null".equals(value)) {
             value = null;
           }
 
@@ -59,7 +72,6 @@ public final class MongoObjectMapper implements ObjectMapper<Document> {
       }
 
       return instance;
-
     } catch (final Exception e) {
       throw new RuntimeException("Failed to deserialize object of type " + clazz.getName(), e);
     }
@@ -67,30 +79,22 @@ public final class MongoObjectMapper implements ObjectMapper<Document> {
 
   @NotNull
   @Override
-  public Document write(final Object object) {
-    final var jsonObject = new JsonObject();
+  public Document write(@NotNull final Object object) {
+    final JsonObject jsonObject = new JsonObject();
 
     for (final var field : object.getClass().getDeclaredFields()) {
       field.setAccessible(true);
 
-      if (field.isAnnotationPresent(Ignore.class)) {
+      if (field.isAnnotationPresent(Ignore.class))
         continue;
-      }
-
-      final var name = field.getName();
 
       try {
-        final var value = field.get(object);
-
-        if (value == null) {
-          jsonObject.add(name, gson.toJsonTree("null"));
-          continue;
-        }
+        final Object value = field.get(object);
 
         if (field.isAnnotationPresent(Identifier.class)) {
-          jsonObject.add("_id", gson.toJsonTree(value));
+          jsonObject.add("_id", gson.toJsonTree(value != null ? value : null));
         } else {
-          jsonObject.add(name, gson.toJsonTree(value));
+          jsonObject.add(field.getName(), gson.toJsonTree(value != null ? value : null));
         }
       } catch (final IllegalAccessException e) {
         throw new RuntimeException(e);
@@ -102,11 +106,15 @@ public final class MongoObjectMapper implements ObjectMapper<Document> {
 
   @NotNull
   private Object convertValue(final Object value, final Class<?> targetType) {
+    if (value == null) {
+      return null;
+    }
+
     if (targetType.isInstance(value)) {
       return value;
     }
 
-    final var json = gson.toJson(value);
+    final String json = gson.toJson(value);
     return gson.fromJson(json, targetType);
   }
 }
