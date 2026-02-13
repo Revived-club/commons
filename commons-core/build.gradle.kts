@@ -11,6 +11,8 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.jetbrainsannotations)
     implementation(libs.kubernetes)
+    implementation(libs.bson)
+    implementation(libs.gson)
 }
 
 java {
