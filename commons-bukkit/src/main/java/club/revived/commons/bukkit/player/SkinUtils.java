@@ -3,7 +3,6 @@ package club.revived.commons.bukkit.player;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-// TODO: Implement into commons
 public final class SkinUtils {
 
   @NotNull
