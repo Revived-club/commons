@@ -89,7 +89,10 @@ public final class MongoHandler implements DatabaseProvider {
   @Override
   public <T extends Entity> @NotNull CompletableFuture<List<T>> getAll(final Class<T> clazz) {
     return CompletableFuture.supplyAsync(() -> {
-      final MongoCollection<T> collection = this.database.getCollection(clazz.getSimpleName()).withDocumentClass(clazz)
+      final var name = clazz.getSimpleName().toLowerCase();
+
+      final MongoCollection<T> collection = this.database.getCollection(name)
+          .withDocumentClass(clazz)
           .withCodecRegistry(this.codecRegistry);
 
       final List<T> result = new ArrayList<>();
@@ -107,8 +110,12 @@ public final class MongoHandler implements DatabaseProvider {
       final Class<T> clazz,
       final String key) {
     return CompletableFuture.supplyAsync(() -> {
-      final MongoCollection<T> collection = this.database.getCollection(clazz.getSimpleName()).withDocumentClass(clazz)
+      final var name = clazz.getSimpleName().toLowerCase();
+
+      final MongoCollection<T> collection = this.database.getCollection(name)
+          .withDocumentClass(clazz)
           .withCodecRegistry(this.codecRegistry);
+
       final T value = collection.find(Filters.eq("_id", key)).first();
       return Optional.ofNullable(value);
     });
@@ -117,8 +124,12 @@ public final class MongoHandler implements DatabaseProvider {
   @Override
   public <T extends Entity> @NotNull CompletableFuture<Void> save(final Class<T> clazz, final T entity) {
     return CompletableFuture.runAsync(() -> {
-      final MongoCollection<T> collection = this.database.getCollection(clazz.getSimpleName()).withDocumentClass(clazz)
+      final var name = clazz.getSimpleName().toLowerCase();
+
+      final MongoCollection<T> collection = this.database.getCollection(name)
+          .withDocumentClass(clazz)
           .withCodecRegistry(this.codecRegistry);
+
       final Object id = getId(entity);
 
       collection.replaceOne(
