@@ -6,6 +6,9 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import org.bson.Document;
+import org.bson.UuidRepresentation;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import com.mongodb.ConnectionString;
@@ -20,41 +23,50 @@ import com.mongodb.client.model.ReplaceOptions;
 import club.revived.commons.data.DatabaseProvider;
 import club.revived.commons.data.model.DatabaseCredentials;
 import club.revived.commons.orm.annotations.Entity;
-import club.revived.commons.orm.mongodb.MongoObjectMapper;
+import club.revived.commons.orm.annotations.Identifier;
+import club.revived.commons.orm.codec.EntityCodecProvider;
 
 public final class MongoHandler implements DatabaseProvider {
 
   private final DatabaseCredentials credentials;
-  private final MongoObjectMapper mongoObjectMapper = new MongoObjectMapper();
 
   private MongoClient mongoClient;
   private MongoDatabase database;
   private boolean connected = false;
 
+  private CodecRegistry codecRegistry;
+
   public MongoHandler(final DatabaseCredentials credentials) {
     this.credentials = credentials;
   }
 
+  @Override
   public void connect() {
     try {
-      final String connectionString;
 
-      if (this.credentials.password() != null && !this.credentials.password().isEmpty()) {
+      final String connectionString;
+      if (credentials.password() != null && !credentials.password().isEmpty()) {
         connectionString = String.format(
-            "mongodb://%s:%s@%s:%d",
-            this.credentials.user(),
-            this.credentials.password(),
-            this.credentials.host(),
-            this.credentials.port());
+            "mongodb+srv://%s:%s@%s/%s",
+            credentials.user(),
+            credentials.password(),
+            credentials.host(),
+            credentials.database());
       } else {
         connectionString = String.format(
-            "mongodb://%s:%d",
-            this.credentials.host(),
-            this.credentials.port());
+            "mongodb+srv://%s/%s",
+            credentials.host(),
+            credentials.database());
       }
+
+      this.codecRegistry = CodecRegistries.fromRegistries(
+          MongoClientSettings.getDefaultCodecRegistry(),
+          CodecRegistries.fromProviders(new EntityCodecProvider()));
 
       final var settings = MongoClientSettings.builder()
           .applyConnectionString(new ConnectionString(connectionString))
+          .codecRegistry(this.codecRegistry)
+          .uuidRepresentation(UuidRepresentation.JAVA_LEGACY)
           .build();
 
       this.mongoClient = MongoClients.create(settings);
@@ -75,36 +87,15 @@ public final class MongoHandler implements DatabaseProvider {
   }
 
   @Override
-  public <T> @NotNull CompletableFuture<Optional<T>> get(
-      final Class<? extends Entity> clazz,
-      final String key) {
+  public <T extends Entity> @NotNull CompletableFuture<List<T>> getAll(final Class<T> clazz) {
     return CompletableFuture.supplyAsync(() -> {
-      final MongoCollection<Document> collection = getCollection(clazz);
-      final Document document = collection.find(Filters.eq("_id", key)).first();
+      final MongoCollection<T> collection = this.database.getCollection(clazz.getSimpleName()).withDocumentClass(clazz)
+          .withCodecRegistry(this.codecRegistry);
 
-      if (document == null) {
-        return Optional.empty();
-      }
-
-      @SuppressWarnings("unchecked")
-      final T value = (T) mongoObjectMapper.read(document, clazz);
-
-      return Optional.of(value);
-    });
-  }
-
-  @Override
-  public <T> @NotNull CompletableFuture<List<T>> getAll(final Class<? extends Entity> clazz) {
-    return CompletableFuture.supplyAsync(() -> {
-      final MongoCollection<Document> collection = getCollection(clazz);
       final List<T> result = new ArrayList<>();
 
-      for (final var document : collection.find()) {
-
-        @SuppressWarnings("unchecked")
-        final T value = (T) mongoObjectMapper.read(document, clazz);
-
-        result.add(value);
+      for (final T entity : collection.find()) {
+        result.add(entity);
       }
 
       return result;
@@ -112,16 +103,43 @@ public final class MongoHandler implements DatabaseProvider {
   }
 
   @Override
-  public <T> @NotNull CompletableFuture<Void> save(final Class<? extends Entity> clazz, final T t) {
-    return CompletableFuture.runAsync(() -> {
+  public <T extends Entity> @NotNull CompletableFuture<Optional<T>> get(
+      final Class<T> clazz,
+      final String key) {
+    return CompletableFuture.supplyAsync(() -> {
+      final MongoCollection<T> collection = this.database.getCollection(clazz.getSimpleName()).withDocumentClass(clazz)
+          .withCodecRegistry(this.codecRegistry);
+      final T value = collection.find(Filters.eq("_id", key)).first();
+      return Optional.ofNullable(value);
+    });
+  }
 
-      final Document document = mongoObjectMapper.write(t);
-      final MongoCollection<Document> collection = getCollection(clazz);
+  @Override
+  public <T extends Entity> @NotNull CompletableFuture<Void> save(final Class<T> clazz, final T entity) {
+    return CompletableFuture.runAsync(() -> {
+      final MongoCollection<T> collection = this.database.getCollection(clazz.getSimpleName()).withDocumentClass(clazz)
+          .withCodecRegistry(this.codecRegistry);
+      final Object id = getId(entity);
 
       collection.replaceOne(
-          Filters.eq("_id", document.get("_id")),
-          document,
+          Filters.eq("_id", id),
+          entity,
           new ReplaceOptions().upsert(true));
     });
+  }
+
+  @NotNull
+  private <T extends Entity> Object getId(final T entity) {
+    try {
+      for (final var field : entity.getClass().getDeclaredFields()) {
+        if (field.isAnnotationPresent(Identifier.class)) {
+          field.setAccessible(true);
+          return field.get(entity);
+        }
+      }
+    } catch (final Exception e) {
+      throw new RuntimeException("Failed to retrieve @Identifier from entity", e);
+    }
+    throw new IllegalStateException("Entity has no @Identifier field");
   }
 }

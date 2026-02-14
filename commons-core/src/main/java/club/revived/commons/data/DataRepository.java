@@ -21,59 +21,73 @@ public final class DataRepository {
 
   private static DataRepository instance;
 
-  public DataRepository(final DatabaseType databaseType) {
+  public DataRepository(@NotNull final DatabaseType databaseType) {
     this.providers.put(DatabaseType.MONGODB, MongoHandler.class);
     this.databaseType = databaseType;
   }
 
-  public <T> void save(final Class<? extends Entity> clazz, final T t) {
-    this.databaseProvider.save(clazz, t);
+  public <T extends Entity> void save(@NotNull final Class<T> clazz, @NotNull final T entity) {
+    System.out.println("Saving entity of type " + clazz.getSimpleName());
+    this.databaseProvider.save(clazz, entity);
+  }
+
+  public <T extends Entity> void save(@NotNull final T entity) {
+    @SuppressWarnings("unchecked")
+    final Class<T> clazz = (Class<T>) entity.getClass();
+    save(clazz, entity);
   }
 
   @NotNull
-  public <T> CompletableFuture<Optional<T>> get(final Class<? extends Entity> clazz, final String key) {
+  public <T extends Entity> CompletableFuture<Optional<T>> get(
+      @NotNull final Class<T> clazz,
+      @NotNull final String key) {
     return this.databaseProvider.get(clazz, key);
   }
 
-  @NotNull
-  public <T> void ifEntityExists(final Class<? extends Entity> clazz, final String key, final Consumer<T> action) {
-    this.databaseProvider.get(clazz, key).thenAccept(opt -> {
-
-      opt.ifPresent(value -> action.accept((T) value));
-    });
+  public <T extends Entity> void ifEntityExists(
+      @NotNull final Class<T> clazz,
+      @NotNull final String key,
+      @NotNull final Consumer<T> action) {
+    this.databaseProvider.get(clazz, key).thenAccept(opt -> opt.ifPresent(action));
   }
 
   @NotNull
-  public <T> CompletableFuture<List<T>> getAll(final Class<? extends Entity> clazz) {
+  public <T extends Entity> CompletableFuture<List<T>> getAll(@NotNull final Class<T> clazz) {
     return this.databaseProvider.getAll(clazz);
   }
 
-  @NotNull
-  public <T> void forEachEntity(final Class<? extends Entity> clazz, final Consumer<T> action) {
-    this.getAll(clazz).thenAccept(list -> {
-      for (final var entry : list) {
-        action.accept((T) entry);
-      }
-    });
+  public <T extends Entity> void forEachEntity(
+      @NotNull final Class<T> clazz,
+      @NotNull final Consumer<T> action) {
+    this.getAll(clazz).thenAccept(list -> list.forEach(action));
   }
 
   @NotNull
-  public void init(final DatabaseCredentials credentials) {
+  public void init(@NotNull final DatabaseCredentials credentials) {
     try {
-      final var clazz = providers.get(this.databaseType);
+      final Class<? extends DatabaseProvider> clazz = providers.get(this.databaseType);
+      if (clazz == null) {
+        throw new UnsupportedOperationException("No provider registered for " + this.databaseType);
+      }
 
-      final var provider = clazz.getDeclaredConstructor(DatabaseCredentials.class).newInstance(credentials);
+      final DatabaseProvider provider = clazz.getDeclaredConstructor(DatabaseCredentials.class)
+          .newInstance(credentials);
+
       this.databaseProvider = provider;
+      this.databaseProvider.connect();
+
+      instance = this;
+
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
   }
 
+  @NotNull
   public static DataRepository getInstance() {
     if (instance == null) {
-      throw new UnsupportedOperationException();
+      throw new UnsupportedOperationException("DataRepository not initialized");
     }
-
     return instance;
   }
 }

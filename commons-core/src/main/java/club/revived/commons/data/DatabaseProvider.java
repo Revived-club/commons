@@ -11,12 +11,18 @@ import club.revived.commons.orm.annotations.Entity;
 public interface DatabaseProvider {
 
   @NotNull
-  public <T> CompletableFuture<Optional<T>> get(final Class<? extends Entity> clazz, final String key);
+  <T extends Entity> CompletableFuture<Optional<T>> get(
+      @NotNull final Class<T> clazz,
+      @NotNull final String key);
 
   @NotNull
-  public <T> CompletableFuture<List<T>> getAll(final Class<? extends Entity> clazz);
+  <T extends Entity> CompletableFuture<List<T>> getAll(
+      @NotNull final Class<T> clazz);
 
   @NotNull
-  public <T> CompletableFuture<Void> save(final Class<? extends Entity> clazz, final T t);
+  <T extends Entity> CompletableFuture<Void> save(
+      @NotNull final Class<T> clazz,
+      @NotNull final T entity);
 
+  void connect();
 }

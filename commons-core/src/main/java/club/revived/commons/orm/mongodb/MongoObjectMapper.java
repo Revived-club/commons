@@ -96,8 +96,8 @@ public final class MongoObjectMapper implements ObjectMapper<Document> {
         } else {
           jsonObject.add(field.getName(), gson.toJsonTree(value != null ? value : null));
         }
-      } catch (final IllegalAccessException e) {
-        throw new RuntimeException(e);
+      } catch (final Exception e) {
+        e.printStackTrace();
       }
     }
 
