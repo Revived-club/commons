@@ -7,5 +7,4 @@ public interface Entity {
   default <T extends Entity> void save() {
     DataRepository.getInstance().save(this);
   }
-
 }
