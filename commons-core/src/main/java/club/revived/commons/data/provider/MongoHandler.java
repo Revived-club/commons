@@ -18,7 +18,9 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.ReplaceOneModel;
 import com.mongodb.client.model.ReplaceOptions;
+import com.mongodb.client.model.WriteModel;
 
 import club.revived.commons.data.DatabaseProvider;
 import club.revived.commons.data.model.DatabaseCredentials;
@@ -186,6 +188,40 @@ public final class MongoHandler implements DatabaseProvider {
       }
 
       return result;
+    });
+  }
+
+  @Override
+  public <T extends Entity> @NotNull CompletableFuture<Void> saveAll(
+      final Class<T> clazz,
+      final List<T> entities) {
+    if (!this.connected) {
+      return CompletableFuture.failedFuture(new IllegalStateException("The database is not connected"));
+    }
+
+    if (entities == null || entities.isEmpty()) {
+      return CompletableFuture.completedFuture(null);
+    }
+
+    return CompletableFuture.runAsync(() -> {
+      final var name = this.getCollection(clazz);
+
+      final MongoCollection<T> collection = this.database.getCollection(name)
+          .withDocumentClass(clazz)
+          .withCodecRegistry(this.codecRegistry);
+
+      final List<WriteModel<T>> bulkOperations = new ArrayList<>();
+
+      for (final T entity : entities) {
+        final Object id = getId(entity);
+        bulkOperations.add(
+            new ReplaceOneModel<>(
+                Filters.eq("_id", id),
+                entity,
+                new ReplaceOptions().upsert(true)));
+      }
+
+      collection.bulkWrite(bulkOperations);
     });
   }
 

@@ -25,6 +25,11 @@ public interface DatabaseProvider {
       @NotNull final T entity);
 
   @NotNull
+  <T extends Entity> CompletableFuture<Void> saveAll(
+      @NotNull final Class<T> clazz,
+      @NotNull final List<T> entities);
+
+  @NotNull
   <T extends Entity> CompletableFuture<Void> delete(
       @NotNull final Class<T> clazz,
       @NotNull final Object key);
