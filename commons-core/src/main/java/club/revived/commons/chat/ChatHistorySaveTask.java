@@ -17,9 +17,6 @@ public final class ChatHistorySaveTask {
   private final List<ChatMessage> messages = new ArrayList<>();
   public final ScheduledExecutorService subServer = Executors.newScheduledThreadPool(1);
 
-  public ChatHistorySaveTask() {
-  }
-
   public void start() {
     this.subServer.scheduleAtFixedRate(() -> {
       final List<ChatMessage> queried = new ArrayList<>(this.messages);
@@ -48,5 +45,4 @@ public final class ChatHistorySaveTask {
   public void queueMessage(final @NotNull ChatMessage chatMessage) {
     this.messages.add(chatMessage);
   }
-
 }

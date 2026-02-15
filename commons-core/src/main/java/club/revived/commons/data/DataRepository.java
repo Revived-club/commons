@@ -45,7 +45,7 @@ public final class DataRepository {
   }
 
   @NotNull
-  public <T extends Entity> @NotNull CompletableFuture<List<T>> getAllByKeys(
+  public <T extends Entity> CompletableFuture<List<T>> getAllByKeys(
       final @NotNull Class<T> clazz,
       final @NotNull List<?> keys) {
     return this.databaseProvider.getAllByKeys(clazz, keys);

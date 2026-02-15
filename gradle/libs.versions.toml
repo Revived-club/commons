@@ -13,6 +13,7 @@ gson = "2.13.2"
 cloud = "2.0.0"
 cloudpaper = "2.0.0-beta.10"
 fuzzywuzzy = "1.4.0"
+influxdb = "7.5.0"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -28,6 +29,7 @@ gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 cloud = { module = "org.incendo:cloud-paper", version.ref = "cloudpaper" }
 cloudannotations = { module = "org.incendo:cloud-annotations", version.ref = "cloud" }
 fuzzywuzzy = { module = "me.xdrop:fuzzywuzzy", version.ref = "fuzzywuzzy" } 
+influxdb = { module = "com.influxdb:influxdb-client-java", version.ref = "influxdb" }
 
 [plugins]
 shadow = { id =  "com.gradleup.shadow", version.ref = "shadow" }

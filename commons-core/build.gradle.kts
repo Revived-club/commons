@@ -15,6 +15,7 @@ dependencies {
     api(libs.gson)
     implementation(libs.mongo)
     implementation(libs.jedis)
+    implementation(libs.influxdb)
 }
 
 java {
