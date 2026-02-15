@@ -45,9 +45,16 @@ public final class DataRepository {
   }
 
   @NotNull
+  public <T extends Entity> @NotNull CompletableFuture<List<T>> getAllByKeys(
+      final @NotNull Class<T> clazz,
+      final @NotNull List<?> keys) {
+    return this.databaseProvider.getAllByKeys(clazz, keys);
+  }
+
+  @NotNull
   public <T extends Entity> CompletableFuture<Optional<T>> get(
       @NotNull final Class<T> clazz,
-      @NotNull final String key) {
+      @NotNull final Object key) {
     return this.databaseProvider.get(clazz, key);
   }
 
@@ -74,7 +81,7 @@ public final class DataRepository {
   @NotNull
   public <T extends Entity> CompletableFuture<Void> delete(
       @NotNull final Class<T> clazz,
-      @NotNull final String key) {
+      @NotNull final Object key) {
     return this.databaseProvider.delete(clazz, key);
   }
 

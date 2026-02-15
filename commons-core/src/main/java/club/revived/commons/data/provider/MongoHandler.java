@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import org.bson.Document;
 import org.bson.UuidRepresentation;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -144,6 +143,37 @@ public final class MongoHandler implements DatabaseProvider {
           Filters.eq("_id", id),
           entity,
           new ReplaceOptions().upsert(true));
+    });
+  }
+
+  @Override
+  public <T extends Entity> @NotNull CompletableFuture<List<T>> getAllByKeys(
+      final @NotNull Class<T> clazz,
+      final @NotNull List<?> keys) {
+
+    if (!this.connected) {
+      return CompletableFuture.failedFuture(
+          new IllegalStateException("The database is not connected"));
+    }
+
+    if (keys == null || keys.isEmpty()) {
+      return CompletableFuture.completedFuture(List.of());
+    }
+
+    return CompletableFuture.supplyAsync(() -> {
+      final String name = this.getCollection(clazz);
+
+      final MongoCollection<T> collection = this.database.getCollection(name)
+          .withDocumentClass(clazz)
+          .withCodecRegistry(this.codecRegistry);
+
+      final List<T> result = new ArrayList<>();
+
+      for (final T entity : collection.find(Filters.in("_id", keys))) {
+        result.add(entity);
+      }
+
+      return result;
     });
   }
 

@@ -14,6 +14,9 @@ dependencies {
     api(project(":commons-core"))
     compileOnly(libs.papermc)
     compileOnly(libs.worldguard)
+    implementation(libs.cloud)
+    implementation(libs.cloudannotations)
+    implementation(libs.fuzzywuzzy)
 }
 
 java {
