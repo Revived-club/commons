@@ -56,6 +56,21 @@ public final class DataRepository {
     return this.databaseProvider.getAll(clazz);
   }
 
+  @NotNull
+  public <T extends Entity> CompletableFuture<List<T>> getByField(
+      @NotNull final Class<T> clazz,
+      @NotNull final String fieldName,
+      @NotNull final Object value) {
+    return this.databaseProvider.getByField(clazz, fieldName, value);
+  }
+
+  @NotNull
+  public <T extends Entity> CompletableFuture<Void> delete(
+      @NotNull final Class<T> clazz,
+      @NotNull final String key) {
+    return this.databaseProvider.delete(clazz, key);
+  }
+
   public <T extends Entity> void forEachEntity(
       @NotNull final Class<T> clazz,
       @NotNull final Consumer<T> action) {

@@ -24,5 +24,16 @@ public interface DatabaseProvider {
       @NotNull final Class<T> clazz,
       @NotNull final T entity);
 
+  @NotNull
+  <T extends Entity> CompletableFuture<Void> delete(
+      @NotNull final Class<T> clazz,
+      @NotNull final String key);
+
+  @NotNull
+  <T extends Entity> CompletableFuture<List<T>> getByField(
+      @NotNull final Class<T> clazz,
+      @NotNull final String fieldName,
+      @NotNull final Object value);
+
   void connect();
 }

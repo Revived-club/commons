@@ -139,6 +139,42 @@ public final class MongoHandler implements DatabaseProvider {
     });
   }
 
+  @Override
+  public <T extends Entity> @NotNull CompletableFuture<Void> delete(final @NotNull Class<T> clazz,
+      final @NotNull String key) {
+    return CompletableFuture.runAsync(() -> {
+      final var name = clazz.getSimpleName().toLowerCase();
+
+      final MongoCollection<T> collection = this.database.getCollection(name)
+          .withDocumentClass(clazz)
+          .withCodecRegistry(this.codecRegistry);
+
+      collection.deleteOne(Filters.eq("_id", key));
+    });
+  }
+
+  @Override
+  public <T extends Entity> @NotNull CompletableFuture<List<T>> getByField(
+      final @NotNull Class<T> clazz,
+      final @NotNull String fieldName,
+      final @NotNull Object value) {
+    return CompletableFuture.supplyAsync(() -> {
+      final String name = clazz.getSimpleName().toLowerCase();
+
+      final MongoCollection<T> collection = this.database.getCollection(name)
+          .withDocumentClass(clazz)
+          .withCodecRegistry(this.codecRegistry);
+
+      final List<T> result = new ArrayList<>();
+
+      for (final T entity : collection.find(Filters.eq(fieldName, value))) {
+        result.add(entity);
+      }
+
+      return result;
+    });
+  }
+
   @NotNull
   private <T extends Entity> Object getId(final T entity) {
     try {
