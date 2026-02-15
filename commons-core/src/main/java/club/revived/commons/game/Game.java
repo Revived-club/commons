@@ -77,5 +77,4 @@ public abstract class Game {
   public List<UUID> getSpectators() {
     return spectators;
   }
-
 }
