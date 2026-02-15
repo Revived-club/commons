@@ -38,6 +38,13 @@ public final class DataRepository {
   }
 
   @NotNull
+  public <T extends Entity> CompletableFuture<Void> saveAll(
+      @NotNull final Class<T> clazz,
+      @NotNull final List<T> entities) {
+    return this.databaseProvider.saveAll(clazz, entities);
+  }
+
+  @NotNull
   public <T extends Entity> CompletableFuture<Optional<T>> get(
       @NotNull final Class<T> clazz,
       @NotNull final String key) {
