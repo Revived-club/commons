@@ -22,7 +22,7 @@ import com.mongodb.client.model.ReplaceOptions;
 
 import club.revived.commons.data.DatabaseProvider;
 import club.revived.commons.data.model.DatabaseCredentials;
-import club.revived.commons.orm.annotations.Collection;
+import club.revived.commons.orm.annotations.Repository;
 import club.revived.commons.orm.annotations.Entity;
 import club.revived.commons.orm.annotations.Identifier;
 import club.revived.commons.orm.codec.EntityCodecProvider;
@@ -173,8 +173,8 @@ public final class MongoHandler implements DatabaseProvider {
     final var simpleName = clazz.getSimpleName().toLowerCase();
 
     try {
-      if (clazz.isAnnotationPresent(Collection.class)) {
-        final String name = clazz.getAnnotation(Collection.class).value();
+      if (clazz.isAnnotationPresent(Repository.class)) {
+        final String name = clazz.getAnnotation(Repository.class).value();
 
         return name.isEmpty() ? simpleName : name;
       }
