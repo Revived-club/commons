@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
 import club.revived.commons.chat.ChatHistory.ChatMessage;
-import club.revived.commons.data.DataRepository;
 
 public final class ChatHistorySaveTask {
 
@@ -26,18 +25,7 @@ public final class ChatHistorySaveTask {
           .map(message -> message.uuid())
           .toList();
 
-      DataRepository.getInstance().getAllByKeys(ChatHistory.class, uuids)
-          .thenAccept(histories -> {
-            for (final var history : histories) {
-              final var messages = queried.stream()
-                  .filter(message -> message.uuid().equals(history.uuid()))
-                  .toList();
-
-              history.chatMessages().addAll(messages);
-
-              history.save();
-            }
-          });
+      // TODO: Implement InfluxDB lookup
 
     }, 0, 5, TimeUnit.SECONDS);
   }
