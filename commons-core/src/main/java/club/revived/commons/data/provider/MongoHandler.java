@@ -46,6 +46,7 @@ public final class MongoHandler implements DatabaseProvider {
     try {
 
       final String connectionString;
+
       if (credentials.password() != null && !credentials.password().isEmpty()) {
         connectionString = String.format(
             "mongodb+srv://%s:%s@%s/%s",
@@ -67,7 +68,7 @@ public final class MongoHandler implements DatabaseProvider {
       final var settings = MongoClientSettings.builder()
           .applyConnectionString(new ConnectionString(connectionString))
           .codecRegistry(this.codecRegistry)
-          .uuidRepresentation(UuidRepresentation.JAVA_LEGACY)
+          .uuidRepresentation(UuidRepresentation.STANDARD)
           .build();
 
       this.mongoClient = MongoClients.create(settings);
@@ -82,6 +83,10 @@ public final class MongoHandler implements DatabaseProvider {
 
   @Override
   public <T extends Entity> @NotNull CompletableFuture<List<T>> getAll(final Class<T> clazz) {
+    if (!this.connected) {
+      return CompletableFuture.failedFuture(new IllegalStateException("The database is not connected"));
+    }
+
     return CompletableFuture.supplyAsync(() -> {
       final var name = this.getCollection(clazz);
 
@@ -102,7 +107,11 @@ public final class MongoHandler implements DatabaseProvider {
   @Override
   public <T extends Entity> @NotNull CompletableFuture<Optional<T>> get(
       final Class<T> clazz,
-      final String key) {
+      final Object key) {
+    if (!this.connected) {
+      return CompletableFuture.failedFuture(new IllegalStateException("The database is not connected"));
+    }
+
     return CompletableFuture.supplyAsync(() -> {
       final var name = this.getCollection(clazz);
       final MongoCollection<T> collection = this.database.getCollection(name)
@@ -116,8 +125,12 @@ public final class MongoHandler implements DatabaseProvider {
 
   @Override
   public <T extends Entity> @NotNull CompletableFuture<Void> save(final Class<T> clazz, final T entity) {
+    if (!this.connected) {
+      return CompletableFuture.failedFuture(new IllegalStateException("The database is not connected"));
+    }
+
     return CompletableFuture.runAsync(() -> {
-      final var name = clazz.getSimpleName().toLowerCase();
+      final var name = this.getCollection(clazz);
 
       final MongoCollection<T> collection = this.database.getCollection(name)
           .withDocumentClass(clazz)
@@ -134,9 +147,13 @@ public final class MongoHandler implements DatabaseProvider {
 
   @Override
   public <T extends Entity> @NotNull CompletableFuture<Void> delete(final @NotNull Class<T> clazz,
-      final @NotNull String key) {
+      final @NotNull Object key) {
+    if (!this.connected) {
+      return CompletableFuture.failedFuture(new IllegalStateException("The database is not connected"));
+    }
+
     return CompletableFuture.runAsync(() -> {
-      final var name = clazz.getSimpleName().toLowerCase();
+      final var name = this.getCollection(clazz);
 
       final MongoCollection<T> collection = this.database.getCollection(name)
           .withDocumentClass(clazz)
@@ -151,6 +168,10 @@ public final class MongoHandler implements DatabaseProvider {
       final @NotNull Class<T> clazz,
       final @NotNull String fieldName,
       final @NotNull Object value) {
+    if (!this.connected) {
+      return CompletableFuture.failedFuture(new IllegalStateException("The database is not connected"));
+    }
+
     return CompletableFuture.supplyAsync(() -> {
       final String name = this.getCollection(clazz);
 

@@ -13,7 +13,7 @@ public interface DatabaseProvider {
   @NotNull
   <T extends Entity> CompletableFuture<Optional<T>> get(
       @NotNull final Class<T> clazz,
-      @NotNull final String key);
+      @NotNull final Object key);
 
   @NotNull
   <T extends Entity> CompletableFuture<List<T>> getAll(
@@ -27,7 +27,7 @@ public interface DatabaseProvider {
   @NotNull
   <T extends Entity> CompletableFuture<Void> delete(
       @NotNull final Class<T> clazz,
-      @NotNull final String key);
+      @NotNull final Object key);
 
   @NotNull
   <T extends Entity> CompletableFuture<List<T>> getByField(
