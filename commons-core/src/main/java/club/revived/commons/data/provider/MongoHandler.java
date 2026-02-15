@@ -22,6 +22,7 @@ import com.mongodb.client.model.ReplaceOptions;
 
 import club.revived.commons.data.DatabaseProvider;
 import club.revived.commons.data.model.DatabaseCredentials;
+import club.revived.commons.orm.annotations.Collection;
 import club.revived.commons.orm.annotations.Entity;
 import club.revived.commons.orm.annotations.Identifier;
 import club.revived.commons.orm.codec.EntityCodecProvider;
@@ -79,17 +80,10 @@ public final class MongoHandler implements DatabaseProvider {
     }
   }
 
-  @NotNull
-  private MongoCollection<Document> getCollection(final Class<?> clazz) {
-    final String name = clazz.getSimpleName().toLowerCase();
-
-    return database.getCollection(name);
-  }
-
   @Override
   public <T extends Entity> @NotNull CompletableFuture<List<T>> getAll(final Class<T> clazz) {
     return CompletableFuture.supplyAsync(() -> {
-      final var name = clazz.getSimpleName().toLowerCase();
+      final var name = this.getCollection(clazz);
 
       final MongoCollection<T> collection = this.database.getCollection(name)
           .withDocumentClass(clazz)
@@ -110,8 +104,7 @@ public final class MongoHandler implements DatabaseProvider {
       final Class<T> clazz,
       final String key) {
     return CompletableFuture.supplyAsync(() -> {
-      final var name = clazz.getSimpleName().toLowerCase();
-
+      final var name = this.getCollection(clazz);
       final MongoCollection<T> collection = this.database.getCollection(name)
           .withDocumentClass(clazz)
           .withCodecRegistry(this.codecRegistry);
@@ -159,7 +152,7 @@ public final class MongoHandler implements DatabaseProvider {
       final @NotNull String fieldName,
       final @NotNull Object value) {
     return CompletableFuture.supplyAsync(() -> {
-      final String name = clazz.getSimpleName().toLowerCase();
+      final String name = this.getCollection(clazz);
 
       final MongoCollection<T> collection = this.database.getCollection(name)
           .withDocumentClass(clazz)
@@ -176,7 +169,24 @@ public final class MongoHandler implements DatabaseProvider {
   }
 
   @NotNull
-  private <T extends Entity> Object getId(final T entity) {
+  private <T extends Entity> String getCollection(final Class<T> clazz) {
+    final var simpleName = clazz.getSimpleName().toLowerCase();
+
+    try {
+      if (clazz.isAnnotationPresent(Collection.class)) {
+        final String name = clazz.getAnnotation(Collection.class).value();
+
+        return name.isEmpty() ? simpleName : name;
+      }
+    } catch (final Exception e) {
+      throw new RuntimeException("Failed to retrieve collection name from entity", e);
+    }
+
+    return simpleName;
+  }
+
+  @NotNull
+  private <T extends Entity> Object getId(final Entity entity) {
     try {
       for (final var field : entity.getClass().getDeclaredFields()) {
         if (field.isAnnotationPresent(Identifier.class)) {
@@ -187,6 +197,7 @@ public final class MongoHandler implements DatabaseProvider {
     } catch (final Exception e) {
       throw new RuntimeException("Failed to retrieve @Identifier from entity", e);
     }
+
     throw new IllegalStateException("Entity has no @Identifier field");
   }
 }
