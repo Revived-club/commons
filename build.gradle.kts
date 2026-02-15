@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "club.revived.commons"
-version = "0.1.12"
+version = "0.1.14"
 
 java {
     withSourcesJar()

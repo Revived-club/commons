@@ -10,7 +10,7 @@ repositories {
 dependencies {
     testImplementation(libs.junit)
     implementation(libs.guava)
-    implementation(project(":commons-core"))
+    api(project(":commons-core"))
     compileOnly(libs.velocity)
 }
 
