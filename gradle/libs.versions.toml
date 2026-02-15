@@ -10,6 +10,7 @@ worldguard = "7.0.10"
 kubernetes = "7.3.1"
 mongoDriver = "5.7.0-alpha0"
 gson = "2.13.2"
+jedis = "5.1.0"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -22,6 +23,7 @@ worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = 
 kubernetes = { module = "io.fabric8:kubernetes-client", version.ref = "kubernetes" }
 mongo = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongoDriver" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
 
 [plugins]
 shadow = { id =  "com.gradleup.shadow", version.ref = "shadow" }

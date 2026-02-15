@@ -1,0 +1,246 @@
+package club.revived.commons.distribution.kvbus.providers.cache;
+
+import com.google.gson.Gson;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.params.ScanParams;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+
+public final class RedisCacheStore implements DistributedCacheStore {
+
+  private final JedisPool jedisPool;
+  private final ExecutorService subServer = Executors.newVirtualThreadPerTaskExecutor();
+  private final Gson gson = new Gson();
+
+  private static final String LIST_PREFIX = "list:";
+  private static final String ID_PREFIX = "obj:";
+
+  public RedisCacheStore(
+      final String host,
+      final int port,
+      final String password) {
+    this.jedisPool = this.connect(host, port, password);
+  }
+
+  public RedisCacheStore(
+      final String host,
+      final int port) {
+    this.jedisPool = this.connect(host, port, "");
+  }
+
+  @Override
+  public JedisPool connect(
+      final String host,
+      final int port,
+      final String password) {
+    final JedisPoolConfig config = new JedisPoolConfig();
+    config.setMaxIdle(20);
+    config.setMaxTotal(50);
+    config.setTestOnBorrow(true);
+    config.setTestOnReturn(true);
+
+    if (password.isEmpty()) {
+      return new JedisPool(config, host, port, 0);
+    } else {
+      return new JedisPool(config, host, port, 0, password, false);
+    }
+  }
+
+  @Override
+  public <T> CompletableFuture<T> get(
+      final Class<T> clazz,
+      final String key) {
+    return CompletableFuture.supplyAsync(() -> {
+      try (final var jedis = this.jedisPool.getResource()) {
+        final var string = jedis.get(key);
+
+        return this.gson.fromJson(string, clazz);
+      } catch (final Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
+  }
+
+  @Override
+  public <T> void set(
+      final String key,
+      final T t) {
+    CompletableFuture.runAsync(() -> {
+      try (final var jedis = this.jedisPool.getResource()) {
+        final var json = this.gson.toJson(t);
+        jedis.set(key, json);
+      } catch (final Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
+  }
+
+  @Override
+  public <T> void setEx(
+      final String key,
+      final T t,
+      final long seconds) {
+    CompletableFuture.runAsync(() -> {
+      try (final var jedis = this.jedisPool.getResource()) {
+        final var json = this.gson.toJson(t);
+        jedis.setex(key, seconds, json);
+      } catch (final Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
+  }
+
+  @Override
+  public CompletableFuture<Boolean> remove(
+      final String key) {
+    return CompletableFuture.supplyAsync(() -> {
+      try (final var jedis = this.jedisPool.getResource()) {
+        return jedis.del(key) > 0;
+      } catch (final Exception e) {
+        throw new RuntimeException(e);
+      }
+    }, this.subServer);
+  }
+
+  @Override
+  public <T> void push(
+      final String listKey,
+      final String id,
+      final T t) {
+    CompletableFuture.runAsync(() -> {
+      try (final var jedis = this.jedisPool.getResource()) {
+        final String objectKey = ID_PREFIX + id;
+        final String listRedisKey = LIST_PREFIX + listKey;
+
+        jedis.set(objectKey, this.gson.toJson(t));
+        jedis.rpush(listRedisKey, id);
+      } catch (final Exception e) {
+        e.printStackTrace();
+        throw new RuntimeException(e);
+      }
+    });
+  }
+
+  @Override
+  public <T> void pushEx(
+      final String listKey,
+      final String id,
+      final T t,
+      final long ttlSeconds) {
+    CompletableFuture.runAsync(() -> {
+      try (final var jedis = this.jedisPool.getResource()) {
+        final String objectKey = ID_PREFIX + id;
+        final String listRedisKey = LIST_PREFIX + listKey;
+
+        jedis.setex(objectKey, ttlSeconds, this.gson.toJson(t));
+        jedis.rpush(listRedisKey, id);
+        jedis.expire(listRedisKey, ttlSeconds);
+      } catch (final Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
+  }
+
+  @Override
+  public <T> CompletableFuture<List<T>> getAll(
+      final String listKey,
+      final Class<T> clazz) {
+    return CompletableFuture.supplyAsync(() -> {
+      try (final var jedis = this.jedisPool.getResource()) {
+        final String listRedisKey = LIST_PREFIX + listKey;
+
+        final List<String> ids = jedis.lrange(listRedisKey, 0, -1);
+
+        if (ids.isEmpty()) {
+          return List.of();
+        }
+
+        try (final var pipeline = jedis.pipelined()) {
+          ids.forEach(id -> pipeline.get(ID_PREFIX + id));
+          final List<Object> results = pipeline.syncAndReturnAll();
+
+          return results.stream()
+              .filter(Objects::nonNull)
+              .map(obj -> gson.fromJson(obj.toString(), clazz))
+              .collect(Collectors.toList());
+        }
+      } catch (final Exception e) {
+        e.printStackTrace();
+        throw new RuntimeException(e);
+      }
+    }, this.subServer);
+  }
+
+  @Override
+  public <T> CompletableFuture<T> getById(
+      final Class<T> clazz,
+      final String id) {
+    return CompletableFuture.supplyAsync(() -> {
+      try (final var jedis = this.jedisPool.getResource()) {
+        final String json = jedis.get(ID_PREFIX + id);
+        return json == null ? null : gson.fromJson(json, clazz);
+      } catch (final Exception e) {
+        throw new RuntimeException(e);
+      }
+    }, this.subServer);
+  }
+
+  @Override
+  public <T> void update(
+      final String id,
+      final T t) {
+    CompletableFuture.runAsync(() -> {
+      try (final var jedis = this.jedisPool.getResource()) {
+        jedis.set(ID_PREFIX + id, gson.toJson(t));
+      } catch (final Exception e) {
+        throw new RuntimeException(e);
+      }
+    }, this.subServer);
+  }
+
+  @Override
+  public void removeFromList(
+      final String listKey,
+      final String id,
+      final long count) {
+    CompletableFuture.runAsync(() -> {
+      try (final var jedis = this.jedisPool.getResource()) {
+        jedis.lrem(LIST_PREFIX + listKey, count, id);
+        jedis.del(ID_PREFIX + id);
+      } catch (final Exception e) {
+        throw new RuntimeException(e);
+      }
+    }, this.subServer);
+  }
+
+  @Override
+  public void invalidateAll(final String param) {
+    CompletableFuture.runAsync(() -> {
+      var cursor = ScanParams.SCAN_POINTER_START;
+      final var params = new ScanParams()
+          .match(param + ":*")
+          .count(1000);
+
+      try (final var jedis = this.jedisPool.getResource()) {
+        do {
+          final var result = jedis.scan(cursor, params);
+          final var keys = result.getResult();
+
+          if (!keys.isEmpty()) {
+            jedis.del(keys.toArray(new String[0]));
+          }
+
+          cursor = result.getCursor();
+        } while (!cursor.equals(ScanParams.SCAN_POINTER_START));
+      } catch (final Exception e) {
+        e.printStackTrace();
+      }
+    }, this.subServer);
+  }
+}

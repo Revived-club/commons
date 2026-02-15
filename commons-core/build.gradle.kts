@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    alias(libs.plugins.shadow)
 }
 
 repositories {
@@ -11,8 +12,9 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.jetbrainsannotations)
     implementation(libs.kubernetes)
-    implementation(libs.gson)
+    api(libs.gson)
     implementation(libs.mongo)
+    implementation(libs.jedis)
 }
 
 java {
