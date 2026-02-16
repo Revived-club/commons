@@ -32,7 +32,7 @@ public final class InfluxHandler implements LogDatabaseProvider {
         credentials.user(),
         credentials.database());
 
-    if (this.client.getBucketsApi().findBucketByID("logs") == null) {
+    if (this.client.getBucketsApi().findBucketByName("logs") == null) {
       this.client.getBucketsApi().createBucket("logs", "revived");
     }
 
