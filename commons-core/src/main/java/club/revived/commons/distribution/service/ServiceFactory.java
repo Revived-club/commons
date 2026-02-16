@@ -5,8 +5,6 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.sun.tools.javac.comp.ThisEscapeAnalyzer;
-
 import club.revived.commons.distribution.game.GameService;
 import club.revived.commons.distribution.game.LobbyService;
 import club.revived.commons.distribution.game.OnlinePlayer;
