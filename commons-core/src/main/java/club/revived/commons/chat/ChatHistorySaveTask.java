@@ -2,35 +2,39 @@ package club.revived.commons.chat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.jetbrains.annotations.NotNull;
 
-import club.revived.commons.chat.ChatHistory.ChatMessage;
+import club.revived.commons.data.DataRepository;
 
 public final class ChatHistorySaveTask {
 
-  private final List<ChatMessage> messages = new ArrayList<>();
-  public final ScheduledExecutorService subServer = Executors.newScheduledThreadPool(1);
+  private final ConcurrentLinkedQueue<ChatMessage> messages = new ConcurrentLinkedQueue<>();
+  private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
   public void start() {
-    this.subServer.scheduleAtFixedRate(() -> {
-      final List<ChatMessage> queried = new ArrayList<>(this.messages);
-      this.messages.clear();
+    scheduler.scheduleAtFixedRate(() -> {
+      final List<ChatMessage> batch = new ArrayList<>();
 
-      final List<UUID> uuids = queried.stream()
-          .map(message -> message.uuid())
-          .toList();
+      ChatMessage msg;
 
-      // TODO: Implement InfluxDB lookup
+      while ((msg = messages.poll()) != null) {
+        batch.add(msg);
+      }
+
+      if (batch.isEmpty())
+        return;
+
+      DataRepository.getInstance().writeLogs(batch);
 
     }, 0, 5, TimeUnit.SECONDS);
   }
 
   public void queueMessage(final @NotNull ChatMessage chatMessage) {
-    this.messages.add(chatMessage);
+    messages.add(chatMessage);
   }
 }

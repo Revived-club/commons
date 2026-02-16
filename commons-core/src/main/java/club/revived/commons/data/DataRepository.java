@@ -10,19 +10,27 @@ import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 
 import club.revived.commons.data.model.DatabaseCredentials;
+import club.revived.commons.data.model.LogMetric;
+import club.revived.commons.data.provider.InfluxHandler;
 import club.revived.commons.data.provider.MongoHandler;
 import club.revived.commons.orm.annotations.Entity;
 
 public final class DataRepository {
 
   private final Map<DatabaseType, Class<? extends DatabaseProvider>> providers = new HashMap<>();
+  private final Map<DatabaseType, Class<? extends LogDatabaseProvider>> logProviders = new HashMap<>();
+
   private final DatabaseType databaseType;
+
   private DatabaseProvider databaseProvider;
+  private LogDatabaseProvider logDatabaseProvider;
 
   private static DataRepository instance;
 
   public DataRepository(@NotNull final DatabaseType databaseType) {
     this.providers.put(DatabaseType.MONGODB, MongoHandler.class);
+    this.logProviders.put(DatabaseType.INFLUXDB, InfluxHandler.class);
+
     this.databaseType = databaseType;
   }
 
@@ -92,6 +100,109 @@ public final class DataRepository {
   }
 
   @NotNull
+  public <T extends LogMetric> CompletableFuture<Void> writeLog(
+      @NotNull final T metric) {
+
+    return this.logDatabaseProvider.write(metric);
+  }
+
+  @NotNull
+  public <T extends LogMetric> CompletableFuture<Void> writeLogs(
+      @NotNull final List<T> metrics) {
+
+    return this.logDatabaseProvider.writeBatch(metrics);
+  }
+
+  @NotNull
+  public <T extends LogMetric> CompletableFuture<List<T>> getAllLogs(
+      @NotNull final String measurement,
+      @NotNull final Class<T> type) {
+
+    return this.logDatabaseProvider.getAll(measurement, type);
+  }
+
+  @NotNull
+  public <T extends LogMetric> CompletableFuture<List<T>> getAllLogs(
+      @NotNull final String measurement,
+      @NotNull final String tagKey,
+      @NotNull final String tagValue,
+      @NotNull final Class<T> type) {
+
+    return this.logDatabaseProvider.getAll(measurement, tagKey, tagValue, type);
+  }
+
+  @NotNull
+  public <T extends LogMetric> CompletableFuture<List<T>> getLogs(
+      @NotNull final String measurement,
+      final int hours,
+      @NotNull final Class<T> type) {
+
+    return this.logDatabaseProvider.get(measurement, hours, type);
+  }
+
+  @NotNull
+  public <T extends LogMetric> CompletableFuture<List<T>> getLogs(
+      @NotNull final String measurement,
+      @NotNull final String tagKey,
+      @NotNull final String tagValue,
+      final int hours,
+      @NotNull final Class<T> type) {
+
+    return this.logDatabaseProvider.get(
+        measurement,
+        tagKey,
+        tagValue,
+        hours,
+        type);
+  }
+
+  @NotNull
+  public <T extends LogMetric> CompletableFuture<List<T>> getAllLogs(
+      @NotNull final String measurement,
+      @NotNull final String tagKey,
+      @NotNull final List<String> tagValues,
+      @NotNull final Class<T> type) {
+
+    if (tagValues.isEmpty()) {
+      return CompletableFuture.completedFuture(List.of());
+    }
+
+    return this.logDatabaseProvider.getAll(measurement, tagKey, tagValues, type);
+  }
+
+  @NotNull
+  public <T extends LogMetric> CompletableFuture<List<T>> getLogs(
+      @NotNull final String measurement,
+      @NotNull final String tagKey,
+      @NotNull final List<String> tagValues,
+      final int hours,
+      @NotNull final Class<T> type) {
+
+    if (tagValues.isEmpty()) {
+      return CompletableFuture.completedFuture(List.of());
+    }
+
+    return this.logDatabaseProvider.get(measurement, tagKey, tagValues, hours, type);
+  }
+
+  public void initLogging(final @NotNull DatabaseCredentials credentials, final @NotNull DatabaseType databaseType) {
+    try {
+      final var clazz = this.logProviders.get(databaseType);
+
+      if (clazz == null) {
+        throw new UnsupportedOperationException();
+      }
+
+      final var provider = clazz.getDeclaredConstructor(DatabaseCredentials.class)
+          .newInstance(credentials);
+
+      this.logDatabaseProvider = provider;
+      this.logDatabaseProvider.connect();
+    } catch (final Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public void init(@NotNull final DatabaseCredentials credentials) {
     try {
       final Class<? extends DatabaseProvider> clazz = providers.get(this.databaseType);
