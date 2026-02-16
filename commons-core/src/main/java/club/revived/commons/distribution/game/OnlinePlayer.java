@@ -9,8 +9,49 @@ import org.jetbrains.annotations.NotNull;
 import club.revived.commons.data.DataRepository;
 import club.revived.commons.orm.annotations.Entity;
 import club.revived.commons.distribution.Cluster;
+import club.revived.commons.distribution.message.SendActionbar;
+import club.revived.commons.distribution.message.SendMessage;
+import club.revived.commons.distribution.message.WhereIsRequest;
+import club.revived.commons.distribution.message.WhereIsResponse;
+import club.revived.commons.distribution.service.Service;
 
 public record OnlinePlayer(UUID uuid, String username, String server, String skin, String signature, int ping) {
+
+  public void sendMessage(
+      final String message) {
+    final var whereIs = this.whereIs();
+
+    whereIs.thenAccept(service -> {
+      if (service == null) {
+        return;
+      }
+
+      service.sendMessage(new SendMessage(this.uuid, message));
+    });
+  }
+
+  public void sendActionbar(final String message) {
+    this.whereIs().thenAccept(service -> {
+      System.out.println("Sending chat message to " + this.username);
+
+      if (service == null) {
+        return;
+      }
+
+      service.sendMessage(new SendActionbar(this.uuid, message));
+    });
+  }
+
+  @NotNull
+  public CompletableFuture<Service> whereIs() {
+    return Cluster.getInstance().getMessagingService()
+        .sendGlobalRequest(new WhereIsRequest(this.uuid), WhereIsResponse.class)
+        .thenApply(whereIsResponse -> {
+          final var id = whereIsResponse.getFirst().server();
+
+          return Cluster.getInstance().getServices().get(id);
+        });
+  }
 
   public <T> void cacheValue(
       final Class<T> clazz,

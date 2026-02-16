@@ -1,6 +1,13 @@
 package club.revived.commons.distribution.service;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.jetbrains.annotations.NotNull;
+
+import club.revived.commons.distribution.Cluster;
+import club.revived.commons.distribution.kvbus.model.Message;
+import club.revived.commons.distribution.kvbus.model.Request;
+import club.revived.commons.distribution.kvbus.model.Response;
 
 public abstract class Service {
 
@@ -18,6 +25,20 @@ public abstract class Service {
     this.id = id;
     this.ip = ip;
     this.type = type;
+  }
+
+  @NotNull
+  public <T extends Response> CompletableFuture<T> sendRequest(
+      final Request request,
+      final Class<T> responseType) {
+    return Cluster.getInstance().getMessagingService().sendRequest(
+        this.id,
+        request,
+        responseType);
+  }
+
+  public void sendMessage(final Message message) {
+    Cluster.getInstance().getMessagingService().sendMessage(this.id, message);
   }
 
   @NotNull

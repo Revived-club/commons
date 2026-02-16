@@ -45,7 +45,6 @@ public final class MongoHandler implements DatabaseProvider {
   @Override
   public void connect() {
     try {
-
       final String connectionString;
 
       if (credentials.password() != null && !credentials.password().isEmpty()) {
@@ -256,7 +255,7 @@ public final class MongoHandler implements DatabaseProvider {
   }
 
   @NotNull
-  private <T extends Entity> String getCollection(final Class<T> clazz) {
+  private <T extends Entity> @NotNull String getCollection(final Class<T> clazz) {
     final var simpleName = clazz.getSimpleName().toLowerCase();
 
     try {
@@ -273,7 +272,7 @@ public final class MongoHandler implements DatabaseProvider {
   }
 
   @NotNull
-  private <T extends Entity> Object getId(final Entity entity) {
+  private <T extends Entity> @NotNull Object getId(final Entity entity) {
     try {
       for (final var field : entity.getClass().getDeclaredFields()) {
         if (field.isAnnotationPresent(Identifier.class)) {

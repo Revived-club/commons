@@ -12,6 +12,4 @@ public abstract class Feature {
 
   public abstract void onEnable();
 
-  public abstract void onDisable();
-
 }

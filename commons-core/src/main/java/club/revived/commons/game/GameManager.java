@@ -27,6 +27,20 @@ public final class GameManager {
   }
 
   @NotNull
+  public Optional<GameService> getAvailableService(final GameType gameType) {
+    return Cluster.getInstance()
+        .getServices()
+        .values()
+        .stream()
+        .filter(
+            service -> service instanceof GameService gameService &&
+                gameService.getAcceptedGames().contains(gameType))
+        .map(service -> (GameService) service)
+        .sorted(Comparator.comparingInt(service -> service.getOnlinePlayers().size()))
+        .findFirst();
+  }
+
+  @NotNull
   public CompletableFuture<Optional<GameData>> getGameData(final String id) {
     return Cluster.getInstance().getGlobalCache()
         .getById(GameData.class, id)

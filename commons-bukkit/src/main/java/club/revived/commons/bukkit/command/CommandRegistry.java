@@ -15,6 +15,8 @@ public final class CommandRegistry {
   private final PaperCommandManager<CommandSourceStack> commandManager;
   private final AnnotationParser<CommandSourceStack> annotationParser;
 
+  private static CommandRegistry instance;
+
   private final List<Class<?>> commands = new ArrayList<>();
 
   public CommandRegistry(final JavaPlugin plugin) {
@@ -25,6 +27,8 @@ public final class CommandRegistry {
     this.annotationParser = new AnnotationParser<>(
         this.commandManager,
         CommandSourceStack.class);
+
+    instance = this;
   }
 
   public void register(final Class<?> clazz) {
@@ -37,4 +41,10 @@ public final class CommandRegistry {
     }
   }
 
+  public static CommandRegistry getInstance() {
+    if (instance == null) {
+      throw new IllegalStateException("CommandRegistry has not been initialized yet.");
+    }
+    return instance;
+  }
 }

@@ -26,6 +26,7 @@ public final class InfluxHandler implements LogDatabaseProvider {
   @Override
   public void connect() {
     final var url = String.format("http://%s:%d", credentials.host(), credentials.port());
+
     this.client = InfluxDBClientFactory.create(
         url,
         credentials.password().toCharArray(),
@@ -35,7 +36,6 @@ public final class InfluxHandler implements LogDatabaseProvider {
     if (this.client.getBucketsApi().findBucketByName("logs") == null) {
       throw new IllegalStateException("the logs bucket does not exist in influxdb!");
     }
-
   }
 
   @Override
@@ -80,10 +80,10 @@ public final class InfluxHandler implements LogDatabaseProvider {
 
   @Override
   public <T> @NotNull CompletableFuture<List<T>> getAll(
-      @NotNull final String measurement,
-      @NotNull final String tagKey,
-      @NotNull final String tagValue,
-      @NotNull final Class<T> type) {
+      final @NotNull String measurement,
+      final @NotNull String tagKey,
+      final @NotNull String tagValue,
+      final @NotNull Class<T> type) {
 
     final String flux = String.format("""
         from(bucket: "%s")
@@ -92,7 +92,7 @@ public final class InfluxHandler implements LogDatabaseProvider {
           |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         """, credentials.database(), measurement, tagKey, tagValue);
 
-    return query(flux, type);
+    return this.query(flux, type);
   }
 
   @Override
@@ -117,7 +117,7 @@ public final class InfluxHandler implements LogDatabaseProvider {
       final int hours,
       final @NotNull Class<T> type) {
 
-    return query(String.format("""
+    return this.query(String.format("""
         from(bucket: "%s")
           |> range(start: -%dh)
           |> filter(fn: (r) => r._measurement == "%s" and r["%s"] == "%s")
@@ -127,10 +127,10 @@ public final class InfluxHandler implements LogDatabaseProvider {
 
   @Override
   public <T> @NotNull CompletableFuture<List<T>> getAll(
-      @NotNull final String measurement,
-      @NotNull final String tagKey,
-      @NotNull final List<String> tagValues,
-      @NotNull final Class<T> type) {
+      final @NotNull String measurement,
+      final @NotNull String tagKey,
+      final @NotNull List<String> tagValues,
+      final @NotNull Class<T> type) {
 
     if (tagValues.isEmpty()) {
       return CompletableFuture.completedFuture(List.of());
@@ -138,8 +138,10 @@ public final class InfluxHandler implements LogDatabaseProvider {
 
     final StringBuilder filter = new StringBuilder();
     for (int i = 0; i < tagValues.size(); i++) {
-      if (i > 0)
+      if (i > 0) {
         filter.append(" or ");
+      }
+
       filter.append(String.format("r[\"%s\"] == \"%s\"", tagKey, tagValues.get(i)));
     }
 
@@ -150,7 +152,7 @@ public final class InfluxHandler implements LogDatabaseProvider {
           |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         """, credentials.database(), measurement, filter);
 
-    return query(flux, type);
+    return this.query(flux, type);
   }
 
   @Override
@@ -167,8 +169,10 @@ public final class InfluxHandler implements LogDatabaseProvider {
 
     final StringBuilder filter = new StringBuilder();
     for (int i = 0; i < tagValues.size(); i++) {
-      if (i > 0)
+      if (i > 0) {
         filter.append(" or ");
+      }
+
       filter.append(String.format("r[\"%s\"] == \"%s\"", tagKey, tagValues.get(i)));
     }
 
@@ -179,7 +183,7 @@ public final class InfluxHandler implements LogDatabaseProvider {
           |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         """, credentials.database(), hours, measurement, filter);
 
-    return query(flux, type);
+    return this.query(flux, type);
   }
 
   @NotNull

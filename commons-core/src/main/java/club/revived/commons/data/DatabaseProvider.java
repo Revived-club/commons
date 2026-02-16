@@ -12,38 +12,38 @@ public interface DatabaseProvider {
 
   @NotNull
   <T extends Entity> CompletableFuture<Optional<T>> get(
-      @NotNull final Class<T> clazz,
-      @NotNull final Object key);
+      final @NotNull Class<T> clazz,
+      final @NotNull Object key);
 
   @NotNull
   <T extends Entity> CompletableFuture<List<T>> getAll(
-      @NotNull final Class<T> clazz);
+      final @NotNull Class<T> clazz);
 
   @NotNull
   <T extends Entity> CompletableFuture<Void> save(
-      @NotNull final Class<T> clazz,
-      @NotNull final T entity);
+      final @NotNull Class<T> clazz,
+      final @NotNull T entity);
 
   @NotNull
   <T extends Entity> CompletableFuture<List<T>> getAllByKeys(
-      @NotNull final Class<T> clazz,
-      @NotNull final List<?> keys);
+      final @NotNull Class<T> clazz,
+      final @NotNull List<?> keys);
 
   @NotNull
   <T extends Entity> CompletableFuture<Void> saveAll(
-      @NotNull final Class<T> clazz,
-      @NotNull final List<T> entities);
+      final @NotNull Class<T> clazz,
+      final @NotNull List<T> entities);
 
   @NotNull
   <T extends Entity> CompletableFuture<Void> delete(
-      @NotNull final Class<T> clazz,
-      @NotNull final Object key);
+      final @NotNull Class<T> clazz,
+      final @NotNull Object key);
 
   @NotNull
   <T extends Entity> CompletableFuture<List<T>> getByField(
-      @NotNull final Class<T> clazz,
-      @NotNull final String fieldName,
-      @NotNull final Object value);
+      final @NotNull Class<T> clazz,
+      final @NotNull String fieldName,
+      final @NotNull Object value);
 
   void connect();
 }

@@ -45,16 +45,16 @@ public interface LogDatabaseProvider {
 
   @NotNull
   <T> CompletableFuture<List<T>> getAll(
-      @NotNull String measurement,
-      @NotNull String tagKey,
-      @NotNull List<String> tagValues,
-      @NotNull Class<T> type);
+      final @NotNull String measurement,
+      final @NotNull String tagKey,
+      final @NotNull List<String> tagValues,
+      final @NotNull Class<T> type);
 
   @NotNull
   <T> CompletableFuture<List<T>> get(
-      @NotNull String measurement,
-      @NotNull String tagKey,
-      @NotNull List<String> tagValues,
-      int hours,
-      @NotNull Class<T> type);
+      final @NotNull String measurement,
+      final @NotNull String tagKey,
+      final @NotNull List<String> tagValues,
+      final int hours,
+      final @NotNull Class<T> type);
 }

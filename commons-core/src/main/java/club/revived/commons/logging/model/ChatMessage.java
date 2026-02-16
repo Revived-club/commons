@@ -1,4 +1,4 @@
-package club.revived.commons.chat;
+package club.revived.commons.logging.model;
 
 import java.time.Instant;
 
@@ -22,6 +22,9 @@ public class ChatMessage implements LogMetric {
   @Column
   private boolean blocked;
 
+  @Column
+  private String server;
+
   public ChatMessage() {
   }
 
@@ -29,11 +32,13 @@ public class ChatMessage implements LogMetric {
       final String uuid,
       final String content,
       final Instant sentAt,
-      final boolean blocked) {
+      final boolean blocked,
+      final String server) {
     this.uuid = uuid;
     this.content = content;
     this.sentAt = sentAt;
     this.blocked = blocked;
+    this.server = server;
   }
 
   public String getUuid() {

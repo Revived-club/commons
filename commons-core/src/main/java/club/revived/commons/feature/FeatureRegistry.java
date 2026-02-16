@@ -22,20 +22,10 @@ public final class FeatureRegistry {
     features.add(feature);
   }
 
-  public void disableFeature(final Feature feature) {
-    feature.onDisable();
-
-    this.features.remove(feature);
-  }
-
   public void enableFeature(final Feature feature) {
     feature.onEnable();
 
     this.features.add(feature);
-  }
-
-  public void shutdown() {
-    features.forEach(Feature::onDisable);
   }
 
   public void init() {

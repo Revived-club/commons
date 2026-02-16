@@ -1,4 +1,4 @@
-package club.revived.commons.chat;
+package club.revived.commons.logging.task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
 import club.revived.commons.data.DataRepository;
+import club.revived.commons.logging.model.ChatMessage;
 
 public final class ChatHistorySaveTask {
 
@@ -33,6 +34,10 @@ public final class ChatHistorySaveTask {
       DataRepository.getInstance().writeLogs(batch);
 
     }, 0, 5, TimeUnit.SECONDS);
+  }
+
+  public void stop() {
+    scheduler.shutdown();
   }
 
   public void queryMessage(final @NotNull ChatMessage chatMessage) {

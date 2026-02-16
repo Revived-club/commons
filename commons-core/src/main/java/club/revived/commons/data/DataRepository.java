@@ -27,19 +27,19 @@ public final class DataRepository {
 
   private static DataRepository instance;
 
-  public DataRepository(@NotNull final DatabaseType databaseType) {
+  public DataRepository(final @NotNull DatabaseType databaseType) {
     this.providers.put(DatabaseType.MONGODB, MongoHandler.class);
     this.logProviders.put(DatabaseType.INFLUXDB, InfluxHandler.class);
 
     this.databaseType = databaseType;
   }
 
-  public <T extends Entity> void save(@NotNull final Class<T> clazz, @NotNull final T entity) {
+  public <T extends Entity> void save(final @NotNull Class<T> clazz, final @NotNull T entity) {
     System.out.println("Saving entity of type " + clazz.getSimpleName());
     this.databaseProvider.save(clazz, entity);
   }
 
-  public <T extends Entity> void save(@NotNull final T entity) {
+  public <T extends Entity> void save(final @NotNull T entity) {
     @SuppressWarnings("unchecked")
     final Class<T> clazz = (Class<T>) entity.getClass();
     save(clazz, entity);
@@ -47,8 +47,8 @@ public final class DataRepository {
 
   @NotNull
   public <T extends Entity> CompletableFuture<Void> saveAll(
-      @NotNull final Class<T> clazz,
-      @NotNull final List<T> entities) {
+      final @NotNull Class<T> clazz,
+      final @NotNull List<T> entities) {
     return this.databaseProvider.saveAll(clazz, entities);
   }
 
@@ -61,92 +61,92 @@ public final class DataRepository {
 
   @NotNull
   public <T extends Entity> CompletableFuture<Optional<T>> get(
-      @NotNull final Class<T> clazz,
-      @NotNull final Object key) {
+      final @NotNull Class<T> clazz,
+      final @NotNull Object key) {
     return this.databaseProvider.get(clazz, key);
   }
 
   public <T extends Entity> void ifEntityExists(
-      @NotNull final Class<T> clazz,
-      @NotNull final String key,
-      @NotNull final Consumer<T> action) {
+      final @NotNull Class<T> clazz,
+      final @NotNull String key,
+      final @NotNull Consumer<T> action) {
     this.databaseProvider.get(clazz, key).thenAccept(opt -> opt.ifPresent(action));
   }
 
   @NotNull
-  public <T extends Entity> CompletableFuture<List<T>> getAll(@NotNull final Class<T> clazz) {
+  public <T extends Entity> CompletableFuture<List<T>> getAll(final @NotNull Class<T> clazz) {
     return this.databaseProvider.getAll(clazz);
   }
 
   @NotNull
   public <T extends Entity> CompletableFuture<List<T>> getByField(
-      @NotNull final Class<T> clazz,
-      @NotNull final String fieldName,
-      @NotNull final Object value) {
+      final @NotNull Class<T> clazz,
+      final @NotNull String fieldName,
+      final @NotNull Object value) {
     return this.databaseProvider.getByField(clazz, fieldName, value);
   }
 
   @NotNull
   public <T extends Entity> CompletableFuture<Void> delete(
-      @NotNull final Class<T> clazz,
-      @NotNull final Object key) {
+      final @NotNull Class<T> clazz,
+      final @NotNull Object key) {
     return this.databaseProvider.delete(clazz, key);
   }
 
   public <T extends Entity> void forEachEntity(
-      @NotNull final Class<T> clazz,
-      @NotNull final Consumer<T> action) {
+      final @NotNull Class<T> clazz,
+      final @NotNull Consumer<T> action) {
     this.getAll(clazz).thenAccept(list -> list.forEach(action));
   }
 
   @NotNull
   public <T extends LogMetric> CompletableFuture<Void> writeLog(
-      @NotNull final T metric) {
+      final @NotNull T metric) {
 
     return this.logDatabaseProvider.write(metric);
   }
 
   @NotNull
   public <T extends LogMetric> CompletableFuture<Void> writeLogs(
-      @NotNull final List<T> metrics) {
+      final @NotNull List<T> metrics) {
 
     return this.logDatabaseProvider.writeBatch(metrics);
   }
 
   @NotNull
   public <T extends LogMetric> CompletableFuture<List<T>> getAllLogs(
-      @NotNull final String measurement,
-      @NotNull final Class<T> type) {
+      final @NotNull String measurement,
+      final @NotNull Class<T> type) {
 
     return this.logDatabaseProvider.getAll(measurement, type);
   }
 
   @NotNull
   public <T extends LogMetric> CompletableFuture<List<T>> getAllLogs(
-      @NotNull final String measurement,
-      @NotNull final String tagKey,
-      @NotNull final String tagValue,
-      @NotNull final Class<T> type) {
+      final @NotNull String measurement,
+      final @NotNull String tagKey,
+      final @NotNull String tagValue,
+      final @NotNull Class<T> type) {
 
     return this.logDatabaseProvider.getAll(measurement, tagKey, tagValue, type);
   }
 
   @NotNull
   public <T extends LogMetric> CompletableFuture<List<T>> getLogs(
-      @NotNull final String measurement,
+      final @NotNull String measurement,
       final int hours,
-      @NotNull final Class<T> type) {
+      final @NotNull Class<T> type) {
 
     return this.logDatabaseProvider.get(measurement, hours, type);
   }
 
   @NotNull
   public <T extends LogMetric> CompletableFuture<List<T>> getLogs(
-      @NotNull final String measurement,
-      @NotNull final String tagKey,
-      @NotNull final String tagValue,
+      final @NotNull String measurement,
+      final @NotNull String tagKey,
+      final @NotNull String tagValue,
       final int hours,
-      @NotNull final Class<T> type) {
+      final @NotNull Class<T> type) {
 
     return this.logDatabaseProvider.get(
         measurement,
@@ -158,10 +158,10 @@ public final class DataRepository {
 
   @NotNull
   public <T extends LogMetric> CompletableFuture<List<T>> getAllLogs(
-      @NotNull final String measurement,
-      @NotNull final String tagKey,
-      @NotNull final List<String> tagValues,
-      @NotNull final Class<T> type) {
+      final @NotNull String measurement,
+      final @NotNull String tagKey,
+      final @NotNull List<String> tagValues,
+      final @NotNull Class<T> type) {
 
     if (tagValues.isEmpty()) {
       return CompletableFuture.completedFuture(List.of());
@@ -172,11 +172,11 @@ public final class DataRepository {
 
   @NotNull
   public <T extends LogMetric> CompletableFuture<List<T>> getLogs(
-      @NotNull final String measurement,
-      @NotNull final String tagKey,
-      @NotNull final List<String> tagValues,
+      final @NotNull String measurement,
+      final @NotNull String tagKey,
+      final @NotNull List<String> tagValues,
       final int hours,
-      @NotNull final Class<T> type) {
+      final @NotNull Class<T> type) {
 
     if (tagValues.isEmpty()) {
       return CompletableFuture.completedFuture(List.of());
