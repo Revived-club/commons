@@ -45,10 +45,7 @@ public abstract class HeartbeatService implements MessageHandler<Heartbeat> {
 
   @Override
   public void handle(final Heartbeat message) {
-    final var service = ServiceFactory.createService(
-        message.id(),
-        message.serverIp(),
-        message.serviceType());
+    final var service = ServiceFactory.createService(message);
 
     final var now = System.currentTimeMillis();
 

@@ -3,7 +3,7 @@ package club.revived.commons.distribution.service;
 public enum ServiceType {
 
   LOBBY,
-  DUEL,
+  GAME,
   LIMBO,
   PROXY,
   MICROSERVICE

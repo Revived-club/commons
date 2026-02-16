@@ -10,12 +10,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 
-/**
- * This is an interesting Class
- *
- * @author yyuh
- * @since 03.01.26
- */
 public final class ItemSerializer {
 
   @NotNull
@@ -35,10 +29,9 @@ public final class ItemSerializer {
   @SuppressWarnings("CallToPrintStackTrace")
   public static String serializeItemStack(final @NotNull ItemStack itemStack) {
     final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    BukkitObjectOutputStream bukkitObjectOutputStream;
 
     try {
-      bukkitObjectOutputStream = new BukkitObjectOutputStream(byteArrayOutputStream);
+      final var bukkitObjectOutputStream = new BukkitObjectOutputStream(byteArrayOutputStream);
       bukkitObjectOutputStream.writeObject(itemStack);
       bukkitObjectOutputStream.close();
 

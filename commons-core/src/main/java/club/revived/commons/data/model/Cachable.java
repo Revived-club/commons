@@ -1,4 +1,4 @@
-package club.revived.commons.distribution.caching;
+package club.revived.commons.data.model;
 
 import java.util.concurrent.CompletableFuture;
 

@@ -26,15 +26,16 @@ public final class ChatHistorySaveTask {
         batch.add(msg);
       }
 
-      if (batch.isEmpty())
+      if (batch.isEmpty()) {
         return;
+      }
 
       DataRepository.getInstance().writeLogs(batch);
 
     }, 0, 5, TimeUnit.SECONDS);
   }
 
-  public void queueMessage(final @NotNull ChatMessage chatMessage) {
+  public void queryMessage(final @NotNull ChatMessage chatMessage) {
     messages.add(chatMessage);
   }
 }
