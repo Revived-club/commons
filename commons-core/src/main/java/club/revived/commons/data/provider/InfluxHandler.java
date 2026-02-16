@@ -33,7 +33,7 @@ public final class InfluxHandler implements LogDatabaseProvider {
         credentials.database());
 
     if (this.client.getBucketsApi().findBucketByName("logs") == null) {
-      this.client.getBucketsApi().createBucket("logs", "revived");
+      throw new IllegalStateException("the logs bucket does not exist in influxdb!");
     }
 
   }
@@ -49,7 +49,7 @@ public final class InfluxHandler implements LogDatabaseProvider {
   public <T> @NotNull CompletableFuture<Void> write(final @NotNull T obj) {
     return CompletableFuture.runAsync(() -> {
       final var writeApi = client.getWriteApiBlocking();
-      writeApi.writeMeasurement(WritePrecision.MS, obj);
+      writeApi.writeMeasurement(WritePrecision.NS, obj);
     });
   }
 
@@ -61,7 +61,7 @@ public final class InfluxHandler implements LogDatabaseProvider {
       }
 
       final var writeApi = client.getWriteApiBlocking();
-      writeApi.writeMeasurements(WritePrecision.MS, list);
+      writeApi.writeMeasurements(WritePrecision.NS, list);
     });
   }
 
