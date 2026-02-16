@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import club.revived.commons.data.DataRepository;
 import club.revived.commons.orm.annotations.Entity;
 import club.revived.commons.distribution.Cluster;
+import club.revived.commons.distribution.message.KickMessage;
 import club.revived.commons.distribution.message.SendActionbar;
 import club.revived.commons.distribution.message.SendMessage;
 import club.revived.commons.distribution.message.WhereIsRequest;
@@ -30,10 +31,18 @@ public record OnlinePlayer(UUID uuid, String username, String server, String ski
     });
   }
 
+  public void kick(final String reason) {
+    this.whereIs().thenAccept(service -> {
+      if (service == null) {
+        return;
+      }
+
+      service.sendMessage(new KickMessage(this.uuid, reason));
+    });
+  }
+
   public void sendActionbar(final String message) {
     this.whereIs().thenAccept(service -> {
-      System.out.println("Sending chat message to " + this.username);
-
       if (service == null) {
         return;
       }
@@ -91,7 +100,7 @@ public record OnlinePlayer(UUID uuid, String username, String server, String ski
       }
 
       return DataRepository.getInstance()
-          .get(clazz, this.uuid.toString())
+          .get(clazz, this.uuid)
           .thenApply(opt -> {
             opt.ifPresent(val -> this.cacheValue(clazz, val));
             return opt;

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
@@ -15,33 +16,39 @@ public class PunishmentLog implements LogMetric {
 
   @NotNull
   @Column(timestamp = true)
-  private final Instant time;
+  private Instant time;
 
   @NotNull
   @Column(tag = true)
-  private final String playerId;
+  private String playerId;
+
+  @NotNull
+  @Column
+  private String punisherId;
 
   @NotNull
   @Column(tag = true)
-  private final String type;
+  private String type;
 
   @NotNull
   @Column
-  private final String reason;
+  private String reason;
 
+  @Nullable
   @Column
-  private final Instant expiresAt;
+  private Instant expiresAt;
 
   @NotNull
   @Column(tag = true)
-  private final String issuedBy;
+  private String issuedBy;
 
   @NotNull
   @Column
-  private final boolean active;
+  private boolean active;
 
   public PunishmentLog(
       final @NotNull UUID playerId,
+      final @NotNull UUID punisherId,
       final @NotNull String type,
       final @NotNull String reason,
       final Instant expiresAt,
@@ -49,11 +56,16 @@ public class PunishmentLog implements LogMetric {
       final boolean active) {
     this.time = Instant.now();
     this.playerId = playerId.toString();
+    this.punisherId = punisherId.toString();
     this.type = type;
     this.reason = reason;
     this.expiresAt = expiresAt;
     this.issuedBy = issuedBy;
     this.active = active;
+  }
+
+  public @NotNull UUID getPunisherId() {
+    return UUID.fromString(this.punisherId);
   }
 
   public @NotNull Instant getTime() {

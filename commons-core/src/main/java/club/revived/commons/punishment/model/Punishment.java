@@ -13,8 +13,7 @@ public record Punishment(
     UUID uuid,
     String reason,
     PunishmentType type,
-    Instant expiry)
-    implements Entity {
+    Instant expiry) implements Entity {
 
   public boolean isActive() {
     return expiry == null || expiry.isBefore(Instant.now());
