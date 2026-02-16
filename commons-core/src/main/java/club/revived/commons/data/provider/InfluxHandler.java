@@ -72,23 +72,27 @@ public final class InfluxHandler implements LogDatabaseProvider {
 
     return this.query(String.format("""
         from(bucket: "%s")
-          |> range(start: 0)
+          |> range(start: -30d)
           |> filter(fn: (r) => r._measurement == "%s")
+          |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         """, credentials.database(), measurement), type);
   }
 
   @Override
   public <T> @NotNull CompletableFuture<List<T>> getAll(
-      final @NotNull String measurement,
-      final @NotNull String tagKey,
-      final @NotNull String tagValue,
-      final @NotNull Class<T> type) {
+      @NotNull final String measurement,
+      @NotNull final String tagKey,
+      @NotNull final String tagValue,
+      @NotNull final Class<T> type) {
 
-    return this.query(String.format("""
+    final String flux = String.format("""
         from(bucket: "%s")
-          |> range(start: 0)
+          |> range(start: 0)  // from the beginning of time
           |> filter(fn: (r) => r._measurement == "%s" and r["%s"] == "%s")
-        """, credentials.database(), measurement, tagKey, tagValue), type);
+          |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+        """, credentials.database(), measurement, tagKey, tagValue);
+
+    return query(flux, type);
   }
 
   @Override
@@ -101,6 +105,7 @@ public final class InfluxHandler implements LogDatabaseProvider {
         from(bucket: "%s")
           |> range(start: -%dh)
           |> filter(fn: (r) => r._measurement == "%s")
+          |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         """, credentials.database(), hours, measurement), type);
   }
 
@@ -116,6 +121,7 @@ public final class InfluxHandler implements LogDatabaseProvider {
         from(bucket: "%s")
           |> range(start: -%dh)
           |> filter(fn: (r) => r._measurement == "%s" and r["%s"] == "%s")
+          |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         """, credentials.database(), hours, measurement, tagKey, tagValue), type);
   }
 
@@ -139,8 +145,9 @@ public final class InfluxHandler implements LogDatabaseProvider {
 
     final String flux = String.format("""
         from(bucket: "%s")
-          |> range(start: 0)
+          |> range(start: 0)  // from the beginning of time
           |> filter(fn: (r) => r._measurement == "%s" and (%s))
+          |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         """, credentials.database(), measurement, filter);
 
     return query(flux, type);
@@ -169,6 +176,7 @@ public final class InfluxHandler implements LogDatabaseProvider {
         from(bucket: "%s")
           |> range(start: -%dh)
           |> filter(fn: (r) => r._measurement == "%s" and (%s))
+          |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         """, credentials.database(), hours, measurement, filter);
 
     return query(flux, type);
