@@ -1,5 +1,7 @@
 package club.revived.commons.chat;
 
+import java.time.Instant;
+
 import com.influxdb.annotations.Column;
 import com.influxdb.annotations.Measurement;
 
@@ -15,7 +17,7 @@ public class ChatMessage implements LogMetric {
   private String content;
 
   @Column(timestamp = true)
-  private long sentAt;
+  private Instant sentAt;
 
   @Column
   private boolean blocked;
@@ -26,7 +28,7 @@ public class ChatMessage implements LogMetric {
   public ChatMessage(
       final String uuid,
       final String content,
-      final long sentAt,
+      final Instant sentAt,
       final boolean blocked) {
     this.uuid = uuid;
     this.content = content;
@@ -42,7 +44,7 @@ public class ChatMessage implements LogMetric {
     return content;
   }
 
-  public long getSentAt() {
+  public Instant getSentAt() {
     return sentAt;
   }
 
