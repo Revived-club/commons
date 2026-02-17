@@ -68,4 +68,8 @@ public final class PlayerManager {
 
     return instance;
   }
+
+  public Map<UUID, OnlinePlayer> getOnlinePlayers() {
+    return onlinePlayers;
+  }
 }
