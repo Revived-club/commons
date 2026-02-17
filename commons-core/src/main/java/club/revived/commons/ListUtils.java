@@ -9,6 +9,21 @@ import java.util.List;
 
 public final class ListUtils {
 
+  @SafeVarargs
+  public static <T> void addNullSafe(final List<T> list, final T... elements) {
+    for (final T element : elements) {
+      addNullSafe(list, element);
+    }
+  }
+
+  public static <T> boolean addNullSafe(final List<T> list, final T element) {
+    if (list == null || element == null) {
+      return false;
+    }
+
+    return list.add(element);
+  }
+
   @NotNull
   public static <T> List<List<T>> splitInHalf(final T[] array) {
     final int mid = array.length / 2;

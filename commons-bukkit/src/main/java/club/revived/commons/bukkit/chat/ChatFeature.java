@@ -11,18 +11,16 @@ import club.revived.commons.bukkit.item.ColorUtils;
 import club.revived.commons.bukkit.listener.Events;
 import club.revived.commons.bukkit.player.PlayerUtils;
 import club.revived.commons.bukkit.punishments.BukkitPunishmentManager;
+import club.revived.commons.chat.ChatFilter;
 import club.revived.commons.distribution.Cluster;
-import club.revived.commons.distribution.game.PlayerManager;
 import club.revived.commons.distribution.message.BroadcastMessage;
 import club.revived.commons.distribution.message.BroadcastPermissionMessage;
 import club.revived.commons.distribution.message.SendActionbar;
 import club.revived.commons.distribution.message.SendMessage;
 import club.revived.commons.distribution.message.SendTitle;
 import club.revived.commons.feature.Feature;
-import club.revived.commons.game.player.PlayerProfile;
 import club.revived.commons.logging.model.ChatMessage;
 import club.revived.commons.logging.task.ChatHistorySaveTask;
-import club.revived.commons.punishment.PunishmentManager;
 import club.revived.commons.punishment.model.PunishmentType;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -32,9 +30,12 @@ import net.kyori.adventure.title.Title.Times;
 public final class ChatFeature extends Feature {
 
   private ChatHistorySaveTask saveTask;
+  private final ChatFilter chatFilter;
 
-  public ChatFeature() {
+  public ChatFeature(final ChatFilter chatFilter) {
     super("chat");
+
+    this.chatFilter = chatFilter;
   }
 
   @Override
@@ -60,7 +61,19 @@ public final class ChatFeature extends Feature {
                   return;
                 }
 
-                Cluster.getInstance().getMessagingService().sendGlobalMessage(new BroadcastMessage(message));
+                this.chatFilter.filterMessage(uuid, message).thenAccept(filterResult -> {
+                  if (filterResult != null) {
+                    Cluster.getInstance().getMessagingService().sendGlobalMessage(new BroadcastPermissionMessage(
+                        String.format("%s flagged the filter! Type: %s Flagged: %s",
+                            player.getName(),
+                            filterResult.type().toString(),
+                            filterResult.matchedContent()),
+                        "club.revived.filter.alert"));
+                    return;
+                  }
+
+                  Cluster.getInstance().getMessagingService().sendGlobalMessage(new BroadcastMessage(message));
+                });
 
               });
         });

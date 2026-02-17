@@ -46,7 +46,6 @@ public final class VelocityPermissionManager extends PermissionManager<Player> {
 
         event.setProvider(provider);
       });
-
     });
   }
 }
