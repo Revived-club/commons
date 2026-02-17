@@ -1,15 +1,14 @@
 package club.revived.commons.velocity.permissions;
 
+import java.util.Map;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.velocitypowered.api.permission.PermissionFunction;
 import com.velocitypowered.api.permission.PermissionProvider;
 import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.permission.Tristate;
 import com.velocitypowered.api.proxy.Player;
-
-import java.util.Map;
-import java.util.Objects;
-
-import org.jetbrains.annotations.NotNull;
 
 public final class VelocityPermissionProvider
     implements PermissionProvider, PermissionFunction {
