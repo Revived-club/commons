@@ -28,15 +28,22 @@ public final class PlayerManager {
     return Optional.ofNullable(this.onlinePlayers.get(uuid));
   }
 
-  @NotNull
+  @Nullable
   public OnlinePlayer get(final UUID uuid) {
+    final var onlinePlayer = this.onlinePlayers.get(uuid);
+
+    return onlinePlayer;
+  }
+
+  @NotNull
+  public OnlinePlayer getExceptionally(final UUID uuid) {
     final var onlinePlayer = this.onlinePlayers.get(uuid);
 
     if (onlinePlayer == null) {
       throw new PlayerNotFoundException();
     }
 
-    return this.onlinePlayers.get(uuid);
+    return onlinePlayer;
   }
 
   @Nullable

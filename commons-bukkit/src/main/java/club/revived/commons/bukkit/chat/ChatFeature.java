@@ -4,15 +4,21 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
+import org.antlr.v4.parse.ANTLRParser.notSet_return;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventPriority;
 
+import com.fasterxml.jackson.databind.ext.NioPathDeserializer;
+import com.mongodb.lang.Nullable;
+
+import club.revived.commons.NumberUtils;
 import club.revived.commons.bukkit.item.ColorUtils;
 import club.revived.commons.bukkit.listener.Events;
 import club.revived.commons.bukkit.player.PlayerUtils;
 import club.revived.commons.bukkit.punishments.BukkitPunishmentManager;
 import club.revived.commons.chat.ChatFilter;
 import club.revived.commons.distribution.Cluster;
+import club.revived.commons.distribution.game.PlayerManager;
 import club.revived.commons.distribution.message.BroadcastMessage;
 import club.revived.commons.distribution.message.BroadcastPermissionMessage;
 import club.revived.commons.distribution.message.SendActionbar;
@@ -50,32 +56,37 @@ public final class ChatFeature extends Feature {
         .handler(event -> {
           final var player = event.getPlayer();
           final var uuid = player.getUniqueId();
+          final var onlinePlayer = PlayerManager.getInstance().get(uuid);
+
+          if (onlinePlayer == null) {
+            player.sendRichMessage("<red>De-sync error! Try chatting again in a second!");
+            return;
+          }
+
+          final var message = MiniMessage.miniMessage().serialize(event.message());
 
           BukkitPunishmentManager.getInstance().isPlayerPunished(uuid, PunishmentType.MUTE)
-              .thenAccept(muted -> {
-                final var message = MiniMessage.miniMessage().serialize(event.message());
-
+              .thenCombine(this.chatFilter.filterMessage(uuid, message), (muted, filter) -> {
                 if (muted) {
-                  player.sendRichMessage("<red>You are muted!");
+                  onlinePlayer.sendMessage("<red>You are muted!");
                   this.logMessage(uuid, message, true);
-                  return;
+                  return null;
                 }
 
-                this.chatFilter.filterMessage(uuid, message).thenAccept(filterResult -> {
-                  if (filterResult != null) {
-                    Cluster.getInstance().getMessagingService().sendGlobalMessage(new BroadcastPermissionMessage(
-                        String.format("%s flagged the filter! Type: %s Flagged: %s",
-                            player.getName(),
-                            filterResult.type().toString(),
-                            filterResult.matchedContent()),
-                        "club.revived.filter.alert"));
-                    return;
-                  }
+                if (filter != null) {
+                  Cluster.getInstance().getMessagingService().sendGlobalMessage(new BroadcastPermissionMessage(
+                      String.format("%s flagged the filter! Type: %s Flagged: %s",
+                          player.getName(),
+                          filter.type().toString(),
+                          filter.matchedContent()),
+                      "club.revived.filter.alert"));
+                  return null;
+                }
 
-                  Cluster.getInstance().getMessagingService().sendGlobalMessage(new BroadcastMessage(message));
-                });
-
+                Cluster.getInstance().getMessagingService().sendGlobalMessage(new BroadcastMessage(message));
+                return null;
               });
+
         });
   }
 
