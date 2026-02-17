@@ -171,7 +171,6 @@ public final class RedisCacheStore implements DistributedCacheStore {
               .collect(Collectors.toList());
         }
       } catch (final Exception e) {
-        e.printStackTrace();
         throw new RuntimeException(e);
       }
     }, this.subServer);
@@ -214,6 +213,46 @@ public final class RedisCacheStore implements DistributedCacheStore {
         jedis.lrem(LIST_PREFIX + listKey, count, id);
         jedis.del(ID_PREFIX + id);
       } catch (final Exception e) {
+        throw new RuntimeException(e);
+      }
+    }, this.subServer);
+  }
+
+  @Override
+  public <T> CompletableFuture<List<T>> getAll(
+      final List<String> listKeys,
+      final Class<T> clazz) {
+
+    return CompletableFuture.supplyAsync(() -> {
+      try (final var jedis = this.jedisPool.getResource()) {
+
+        if (listKeys == null || listKeys.isEmpty()) {
+          return List.of();
+        }
+
+        final var allIds = listKeys.stream()
+            .map(key -> LIST_PREFIX + key)
+            .flatMap(redisKey -> jedis.lrange(redisKey, 0, -1).stream())
+            .distinct()
+            .collect(Collectors.toList());
+
+        if (allIds.isEmpty()) {
+          return List.of();
+        }
+
+        try (final var pipeline = jedis.pipelined()) {
+
+          allIds.forEach(id -> pipeline.get(ID_PREFIX + id));
+
+          final List<Object> results = pipeline.syncAndReturnAll();
+
+          return results.stream()
+              .filter(Objects::nonNull)
+              .map(obj -> gson.fromJson(obj.toString(), clazz))
+              .collect(Collectors.toList());
+        }
+
+      } catch (Exception e) {
         throw new RuntimeException(e);
       }
     }, this.subServer);

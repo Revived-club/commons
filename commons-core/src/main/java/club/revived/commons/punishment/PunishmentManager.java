@@ -8,12 +8,10 @@ import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import club.revived.commons.StringUtils;
 import club.revived.commons.data.DataRepository;
 import club.revived.commons.distribution.game.PlayerManager;
 import club.revived.commons.distribution.message.KickMessage;
 import club.revived.commons.punishment.model.Punishment;
-import club.revived.commons.punishment.model.PunishmentLog;
 import club.revived.commons.punishment.model.PunishmentType;
 
 public abstract class PunishmentManager {
@@ -23,22 +21,43 @@ public abstract class PunishmentManager {
       final @NotNull UUID punisher,
       final @NotNull PunishmentType type,
       final @NotNull String reason,
-      final @Nullable Instant expiry,
-      final @NotNull String issuedBy) {
-    final var id = StringUtils.generateId("punish:");
-    final var punishment = new Punishment(id, playerId, reason, type, expiry);
-
-    final var log = new PunishmentLog(
-        playerId,
-        punisher,
-        type.name(),
-        reason,
-        expiry,
-        issuedBy,
-        punishment.isActive());
+      final @Nullable Instant expiry) {
+    final var punishment = PunishmentFactory.create(playerId, reason, type, expiry);
+    final var log = PunishmentFactory.create(punisher, punishment);
 
     log.save();
     punishment.save();
+  }
+
+  @NotNull
+  public CompletableFuture<Void> expirePunishments(final @NotNull UUID uuid) {
+    return getPunishments(uuid).thenCompose(punishments -> {
+      final var expired = punishments.stream()
+          .filter(p -> p.expiry() != null && p.expiry().isBefore(Instant.now()))
+          .toList();
+
+      if (expired.isEmpty()) {
+        return CompletableFuture.completedFuture(null);
+      }
+
+      final var repository = DataRepository.getInstance();
+
+      final var deletions = expired.stream()
+          .map(p -> repository.delete(Punishment.class, p.id()))
+          .toArray(CompletableFuture[]::new);
+
+      return CompletableFuture.allOf(deletions);
+    });
+  }
+
+  @NotNull
+  public CompletableFuture<Boolean> isPlayerPunished(
+      final @NotNull UUID uuid,
+      final @NotNull PunishmentType type) {
+    return expirePunishments(uuid)
+        .thenCompose(ignored -> getPunishments(uuid))
+        .thenApply(punishments -> punishments.stream()
+            .anyMatch(p -> p.type() == type));
   }
 
   @NotNull

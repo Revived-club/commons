@@ -1,4 +1,4 @@
-package club.revived.commons.punishment.model;
+package club.revived.commons.logging.model;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -38,30 +38,18 @@ public class PunishmentLog implements LogMetric {
   @Column
   private Instant expiresAt;
 
-  @NotNull
-  @Column(tag = true)
-  private String issuedBy;
-
-  @NotNull
-  @Column
-  private boolean active;
-
   public PunishmentLog(
       final @NotNull UUID playerId,
       final @NotNull UUID punisherId,
       final @NotNull String type,
       final @NotNull String reason,
-      final Instant expiresAt,
-      final @NotNull String issuedBy,
-      final boolean active) {
+      final Instant expiresAt) {
     this.time = Instant.now();
     this.playerId = playerId.toString();
     this.punisherId = punisherId.toString();
     this.type = type;
     this.reason = reason;
     this.expiresAt = expiresAt;
-    this.issuedBy = issuedBy;
-    this.active = active;
   }
 
   public @NotNull UUID getPunisherId() {
@@ -86,13 +74,5 @@ public class PunishmentLog implements LogMetric {
 
   public Instant getExpiresAt() {
     return expiresAt;
-  }
-
-  public @NotNull String getIssuedBy() {
-    return issuedBy;
-  }
-
-  public boolean isActive() {
-    return active;
   }
 }

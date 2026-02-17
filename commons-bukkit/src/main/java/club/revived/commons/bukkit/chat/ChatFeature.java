@@ -10,6 +10,7 @@ import org.bukkit.event.EventPriority;
 import club.revived.commons.bukkit.item.ColorUtils;
 import club.revived.commons.bukkit.listener.Events;
 import club.revived.commons.bukkit.player.PlayerUtils;
+import club.revived.commons.bukkit.punishments.BukkitPunishmentManager;
 import club.revived.commons.distribution.Cluster;
 import club.revived.commons.distribution.game.PlayerManager;
 import club.revived.commons.distribution.message.BroadcastMessage;
@@ -21,6 +22,7 @@ import club.revived.commons.feature.Feature;
 import club.revived.commons.game.player.PlayerProfile;
 import club.revived.commons.logging.model.ChatMessage;
 import club.revived.commons.logging.task.ChatHistorySaveTask;
+import club.revived.commons.punishment.PunishmentManager;
 import club.revived.commons.punishment.model.PunishmentType;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -48,31 +50,19 @@ public final class ChatFeature extends Feature {
           final var player = event.getPlayer();
           final var uuid = player.getUniqueId();
 
-          PlayerManager.getInstance().getOptional(uuid)
-              .ifPresentOrElse(
-                  onlinePlayer -> onlinePlayer.getCachedOrLoad(PlayerProfile.class).thenAccept(profileOpt -> {
-                    if (profileOpt.isEmpty())
-                      return;
+          BukkitPunishmentManager.getInstance().isPlayerPunished(uuid, PunishmentType.MUTE)
+              .thenAccept(muted -> {
+                final var message = MiniMessage.miniMessage().serialize(event.message());
 
-                    final var profile = profileOpt.get();
-                    final var punishments = profile.activePunishments();
+                if (muted) {
+                  player.sendRichMessage("<red>You are muted!");
+                  this.logMessage(uuid, message, true);
+                  return;
+                }
 
-                    final boolean isMuted = punishments.stream()
-                        .anyMatch(p -> p.type() == PunishmentType.MUTE && p.isActive());
+                Cluster.getInstance().getMessagingService().sendGlobalMessage(new BroadcastMessage(message));
 
-                    final var message = MiniMessage.miniMessage().serialize(event.message());
-
-                    if (isMuted) {
-                      player.sendRichMessage("<red>You are muted!");
-                      this.logMessage(uuid, message, true);
-                      return;
-                    }
-
-                    Cluster.getInstance().getMessagingService().sendGlobalMessage(new BroadcastMessage(message));
-                  }), () -> {
-                    player.sendRichMessage("<red>A de-sync error occurred. Try chatting again in a second");
-                  });
-
+              });
         });
   }
 

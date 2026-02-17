@@ -31,6 +31,10 @@ public interface DistributedCacheStore {
       final String listKey,
       final Class<T> clazz);
 
+  <T> CompletableFuture<List<T>> getAll(
+      final List<String> listKeys,
+      final Class<T> clazz);
+
   <P> P connect(
       final String host,
       final int port,

@@ -34,15 +34,15 @@ public final class DataRepository {
     this.databaseType = databaseType;
   }
 
-  public <T extends Entity> void save(final @NotNull Class<T> clazz, final @NotNull T entity) {
+  public <T extends Entity> CompletableFuture<Void> save(final @NotNull Class<T> clazz, final @NotNull T entity) {
     System.out.println("Saving entity of type " + clazz.getSimpleName());
-    this.databaseProvider.save(clazz, entity);
+    return this.databaseProvider.save(clazz, entity);
   }
 
-  public <T extends Entity> void save(final @NotNull T entity) {
+  public <T extends Entity> CompletableFuture<Void> save(final @NotNull T entity) {
     @SuppressWarnings("unchecked")
     final Class<T> clazz = (Class<T>) entity.getClass();
-    save(clazz, entity);
+    return save(clazz, entity);
   }
 
   @NotNull
