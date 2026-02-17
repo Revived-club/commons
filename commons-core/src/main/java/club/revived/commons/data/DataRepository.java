@@ -13,7 +13,7 @@ import club.revived.commons.data.model.DatabaseCredentials;
 import club.revived.commons.data.model.LogMetric;
 import club.revived.commons.data.provider.InfluxHandler;
 import club.revived.commons.data.provider.MongoHandler;
-import club.revived.commons.orm.annotations.Entity;
+import club.revived.commons.data.model.Entity;
 
 public final class DataRepository {
 

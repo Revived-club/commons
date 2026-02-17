@@ -14,7 +14,7 @@ public final class StaffChatCommand {
 
   @Command("staffchat <message>")
   @Permission("club.revived.staffchat")
-  public void staffchat(
+  public void staffChat(
       final Player player,
       @Argument("message") @Greedy final String message) {
     Cluster.getInstance().getMessagingService()

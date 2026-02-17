@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.NotNull;
 
 import club.revived.commons.data.DataRepository;
-import club.revived.commons.orm.annotations.Entity;
+import club.revived.commons.data.model.Entity;
 import club.revived.commons.distribution.Cluster;
 import club.revived.commons.distribution.message.KickMessage;
 import club.revived.commons.distribution.message.SendActionbar;

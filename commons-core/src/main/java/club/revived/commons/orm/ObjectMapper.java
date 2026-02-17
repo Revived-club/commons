@@ -2,7 +2,7 @@ package club.revived.commons.orm;
 
 import org.jetbrains.annotations.NotNull;
 
-import club.revived.commons.orm.annotations.Entity;
+import club.revived.commons.data.model.Entity;
 
 public interface ObjectMapper<T> {
 

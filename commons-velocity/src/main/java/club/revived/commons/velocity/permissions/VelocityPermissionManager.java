@@ -26,19 +26,13 @@ public final class VelocityPermissionManager extends PermissionManager<Player> {
   @Override
   public CompletableFuture<Map<String, Boolean>> loadPermissions(final @NotNull UUID uuid) {
     return super.getUserGroups(uuid)
-        .thenApply(groups -> {
-
-          return super.resolvePermissions(groups);
-        });
+        .thenApply(super::resolvePermissions);
   }
 
   @Override
   public CompletableFuture<Map<String, Boolean>> loadPermissions(final @NotNull Player player) {
     return super.getUserGroups(player.getUniqueId())
-        .thenApply(groups -> {
-
-          return super.resolvePermissions(groups);
-        });
+        .thenApply(super::resolvePermissions);
   }
 
   private void initListeners() {

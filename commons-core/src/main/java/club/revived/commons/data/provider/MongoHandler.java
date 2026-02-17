@@ -24,7 +24,7 @@ import com.mongodb.client.model.WriteModel;
 import club.revived.commons.data.DatabaseProvider;
 import club.revived.commons.data.model.DatabaseCredentials;
 import club.revived.commons.orm.annotations.Repository;
-import club.revived.commons.orm.annotations.Entity;
+import club.revived.commons.data.model.Entity;
 import club.revived.commons.orm.annotations.Identifier;
 import club.revived.commons.orm.codec.EntityCodecProvider;
 

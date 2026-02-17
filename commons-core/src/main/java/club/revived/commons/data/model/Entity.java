@@ -1,4 +1,4 @@
-package club.revived.commons.orm.annotations;
+package club.revived.commons.data.model;
 
 import club.revived.commons.data.DataRepository;
 

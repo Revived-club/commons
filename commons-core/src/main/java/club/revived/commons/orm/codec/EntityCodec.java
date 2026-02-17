@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import club.revived.commons.orm.annotations.Identifier;
 import club.revived.commons.orm.annotations.Ignore;
-import club.revived.commons.orm.annotations.Entity;
+import club.revived.commons.data.model.Entity;
 
 public final class EntityCodec<T extends Entity> implements Codec<T> {
 

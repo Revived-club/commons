@@ -3,7 +3,7 @@ package club.revived.commons.punishment.model;
 import java.time.Instant;
 import java.util.UUID;
 
-import club.revived.commons.orm.annotations.Entity;
+import club.revived.commons.data.model.Entity;
 import club.revived.commons.orm.annotations.Identifier;
 import club.revived.commons.orm.annotations.Repository;
 

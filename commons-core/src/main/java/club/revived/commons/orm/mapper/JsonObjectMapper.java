@@ -12,7 +12,7 @@ import com.google.gson.JsonObject;
 
 import club.revived.commons.Tuple;
 import club.revived.commons.orm.ObjectMapper;
-import club.revived.commons.orm.annotations.Entity;
+import club.revived.commons.data.model.Entity;
 import club.revived.commons.orm.annotations.Ignore;
 
 public final class JsonObjectMapper implements ObjectMapper<String> {

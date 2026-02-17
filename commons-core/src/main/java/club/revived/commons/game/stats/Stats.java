@@ -2,7 +2,7 @@ package club.revived.commons.game.stats;
 
 import java.util.UUID;
 
-import club.revived.commons.orm.annotations.Entity;
+import club.revived.commons.data.model.Entity;
 import club.revived.commons.orm.annotations.Identifier;
 import club.revived.commons.orm.annotations.Repository;
 

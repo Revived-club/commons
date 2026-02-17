@@ -4,7 +4,7 @@ import org.bson.codecs.Codec;
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 
-import club.revived.commons.orm.annotations.Entity;
+import club.revived.commons.data.model.Entity;
 
 public final class EntityCodecProvider implements CodecProvider {
 

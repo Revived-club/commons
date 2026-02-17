@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -28,6 +29,40 @@ public abstract class PermissionManager<T> {
   public abstract CompletableFuture<Map<String, Boolean>> loadPermissions(final @NotNull T obj);
 
   @NotNull
+  public CompletableFuture<Void> saveGroup(final Group group) {
+    return DataRepository.getInstance().save(Group.class, group)
+        .thenRun(() -> Cluster.getInstance().getGlobalCache().set("group:" + group.id(), group));
+  }
+
+  @NotNull
+  public CompletableFuture<Void> deleteGroup(final String id) {
+    return DataRepository.getInstance().delete(Group.class, id)
+        .thenCompose(v -> Cluster.getInstance().getGlobalCache().remove("group:" + id))
+        .thenApply(v -> null);
+  }
+
+  @NotNull
+  public CompletableFuture<Optional<Group>> getGroup(final String id) {
+    return Cluster.getInstance().getGlobalCache().get(Group.class, "group:" + id)
+        .thenCompose(cachedGroup -> {
+          if (cachedGroup != null) {
+            return CompletableFuture.completedFuture(Optional.of(cachedGroup));
+          }
+
+          return DataRepository.getInstance().get(Group.class, id)
+              .thenApply(groupOpt -> {
+                groupOpt.ifPresent(group -> Cluster.getInstance().getGlobalCache().set("group:" + group.id(), group));
+                return groupOpt;
+              });
+        });
+  }
+
+  @NotNull
+  public CompletableFuture<List<Group>> getAllGroups() {
+    return DataRepository.getInstance().getAll(Group.class);
+  }
+
+  @NotNull
   public CompletableFuture<Void> init() {
     return DataRepository.getInstance()
         .getAll(Group.class)
@@ -37,7 +72,7 @@ public abstract class PermissionManager<T> {
   }
 
   @NotNull
-  protected Map<String, Boolean> resolvePermissions(final List<Group> groups) {
+  public Map<String, Boolean> resolvePermissions(final List<Group> groups) {
     final Map<String, Boolean> permissions = new HashMap<>();
 
     for (final Group group : groups) {
