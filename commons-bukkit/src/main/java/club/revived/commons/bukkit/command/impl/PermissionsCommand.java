@@ -1,6 +1,8 @@
 package club.revived.commons.bukkit.command.impl;
 
 import club.revived.commons.bukkit.permissions.BukkitPermissionManager;
+import club.revived.commons.distribution.Cluster;
+import club.revived.commons.distribution.message.GroupUpdateMessage;
 import club.revived.commons.game.player.ProfileManager;
 import club.revived.commons.permissions.model.Group;
 import club.revived.commons.permissions.model.Permission;
@@ -77,13 +79,7 @@ public final class PermissionsCommand {
       final var newGroup = new Group(group.id(), group.prefix(), group.weight(), permissions);
       BukkitPermissionManager.getInstance().saveGroup(newGroup).thenRun(() -> {
         sender.sendRichMessage("<green>Added permission " + permKey + " (" + finalValue + ") to group " + id + ".");
-        for (final var player : Bukkit.getOnlinePlayers()) {
-          BukkitPermissionManager.getInstance().getUserGroups(player.getUniqueId()).thenAccept(groups -> {
-            if (groups.stream().anyMatch(g -> g.id().equalsIgnoreCase(id))) {
-              BukkitPermissionManager.getInstance().refreshPermissions(player);
-            }
-          });
-        }
+        Cluster.getInstance().getMessagingService().sendGlobalMessage(new GroupUpdateMessage(id));
       });
     });
   }
@@ -112,13 +108,7 @@ public final class PermissionsCommand {
       final var newGroup = new Group(group.id(), group.prefix(), group.weight(), permissions);
       BukkitPermissionManager.getInstance().saveGroup(newGroup).thenRun(() -> {
         sender.sendRichMessage("<green>Removed permission " + permKey + " from group " + id + ".");
-        for (final var player : Bukkit.getOnlinePlayers()) {
-          BukkitPermissionManager.getInstance().getUserGroups(player.getUniqueId()).thenAccept(groups -> {
-            if (groups.stream().anyMatch(g -> g.id().equalsIgnoreCase(id))) {
-              BukkitPermissionManager.getInstance().refreshPermissions(player);
-            }
-          });
-        }
+        Cluster.getInstance().getMessagingService().sendGlobalMessage(new GroupUpdateMessage(id));
       });
     });
   }

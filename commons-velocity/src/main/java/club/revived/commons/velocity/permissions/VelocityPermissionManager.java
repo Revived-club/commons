@@ -12,6 +12,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 
 import club.revived.commons.permissions.PermissionManager;
 
+// TODO: Update perms on update message
 public final class VelocityPermissionManager extends PermissionManager<Player> {
 
   private final ProxyServer server;

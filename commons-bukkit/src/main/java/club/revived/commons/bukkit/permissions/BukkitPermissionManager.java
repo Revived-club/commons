@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -11,6 +12,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import club.revived.commons.bukkit.listener.Events;
+import club.revived.commons.distribution.Cluster;
+import club.revived.commons.distribution.message.GroupUpdateMessage;
+import club.revived.commons.game.player.ProfileManager;
 import club.revived.commons.permissions.PermissionManager;
 
 public final class BukkitPermissionManager extends PermissionManager<Player> {
@@ -22,6 +26,7 @@ public final class BukkitPermissionManager extends PermissionManager<Player> {
     this.plugin = plugin;
 
     this.initListeners();
+    this.initMessageHandlers();
     instance = this;
   }
 
@@ -49,6 +54,22 @@ public final class BukkitPermissionManager extends PermissionManager<Player> {
         .handler(event -> {
           this.refreshPermissions(event.getPlayer());
         });
+  }
+
+  private void initMessageHandlers() {
+    Cluster.getInstance().getMessagingService().registerMessageHandler(GroupUpdateMessage.class, message -> {
+      for (final var player : Bukkit.getOnlinePlayers()) {
+        ProfileManager.getInstance().getProfile(player.getUniqueId()).thenAccept(profile -> {
+          if (profile.isEmpty()) {
+            return;
+          }
+
+          if (profile.get().permissionGroups().contains(message.groupId())) {
+            this.refreshPermissions(player);
+          }
+        });
+      }
+    });
   }
 
   public void refreshPermissions(final Player player) {
