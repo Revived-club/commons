@@ -80,6 +80,8 @@ public final class ChatFeature extends Feature {
                           filter.type().toString(),
                           filter.matchedContent()),
                       "club.revived.filter.alert"));
+                  player.sendRichMessage(
+                      "<red>Your message was blocked by the filter! Please avoid using inappropriate language!");
                   return null;
                 }
 
