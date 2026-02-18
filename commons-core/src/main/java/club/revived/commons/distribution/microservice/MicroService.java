@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import club.revived.commons.distribution.service.Service;
 import club.revived.commons.distribution.service.ServiceSpecifics;
+import club.revived.commons.distribution.service.ServiceStatus;
 import club.revived.commons.distribution.service.ServiceType;
 
 public final class MicroService extends Service {
@@ -13,6 +14,7 @@ public final class MicroService extends Service {
         id,
         "localhost",
         ServiceType.MICROSERVICE,
+        ServiceStatus.STARTING,
         ServiceSpecifics.builder().build());
   }
 }

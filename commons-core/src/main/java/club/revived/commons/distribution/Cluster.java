@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import club.revived.commons.distribution.game.GameService;
+import club.revived.commons.distribution.game.LobbyService;
 import club.revived.commons.distribution.game.ProxyService;
 import club.revived.commons.distribution.kvbus.providers.broker.MessageBroker;
 import club.revived.commons.distribution.kvbus.providers.cache.DistributedCacheStore;
@@ -85,13 +86,26 @@ public final class Cluster {
     this.broker.publish(id, message);
   }
 
+  // TODO: Idek the purpose of this method, maybe remove it?
   @NotNull
-  public GameService getLeastLoadedProxy(final ServiceType serviceType) {
+  public ProxyService getLeastLoadedProxy() {
     final var services = this.services.values()
         .stream()
         .filter(clusterService -> clusterService.getType() == serviceType)
         .filter(clusterService -> clusterService instanceof ProxyService)
-        .map(clusterService -> (GameService) clusterService)
+        .map(clusterService -> (ProxyService) clusterService)
+        .toList();
+
+    return services.getFirst();
+  }
+
+  @NotNull
+  public Service getLeastLoadedLobby(final ServiceType serviceType) {
+    final var services = this.services.values()
+        .stream()
+        .filter(clusterService -> clusterService.getType() == serviceType)
+        .filter(clusterService -> clusterService instanceof LobbyService)
+        .map(clusterService -> (LobbyService) clusterService)
         .sorted(Comparator.comparingInt(service -> service.getOnlinePlayers().size()))
         .toList();
 

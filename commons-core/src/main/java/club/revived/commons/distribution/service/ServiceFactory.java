@@ -23,13 +23,14 @@ public final class ServiceFactory {
       final @NotNull String id,
       final @NotNull String ip,
       final @NotNull ServiceType type,
+      final @NotNull ServiceStatus status,
       final @Nullable List<OnlinePlayer> onlinePlayers,
       final @Nullable List<GameType> games) {
     return switch (type) {
-      case PROXY -> new ProxyService(id, ip);
-      case GAME -> new GameService(id, ip, type, games, onlinePlayers);
+      case PROXY -> new ProxyService(id, ip, status);
+      case GAME -> new GameService(id, ip, type, status, games, onlinePlayers);
       case MICROSERVICE -> new MicroService(id);
-      case LOBBY, LIMBO -> new LobbyService(id, ip, type, onlinePlayers);
+      case LOBBY, LIMBO -> new LobbyService(id, ip, type, status, onlinePlayers);
 
       default -> throw new IllegalArgumentException("Unsupported service type: " + type);
     };
@@ -37,7 +38,11 @@ public final class ServiceFactory {
 
   @NotNull
   public static Service createService(final @NotNull Heartbeat heartbeat) {
-    return createService(heartbeat.id(), heartbeat.serverIp(), heartbeat.serviceType(), heartbeat.specifics());
+    return createService(heartbeat.id(),
+        heartbeat.serverIp(),
+        heartbeat.serviceType(),
+        heartbeat.status(),
+        heartbeat.specifics());
 
   }
 
@@ -46,7 +51,13 @@ public final class ServiceFactory {
       final @NotNull String id,
       final @NotNull String ip,
       final @NotNull ServiceType type,
+      final @NotNull ServiceStatus status,
       final @NotNull ServiceSpecifics specifics) {
-    return createService(id, ip, type, specifics.getOnlinePlayers(), specifics.getAllowedGames());
+    return createService(id,
+        ip,
+        type,
+        status,
+        specifics.getOnlinePlayers(),
+        specifics.getAllowedGames());
   }
 }

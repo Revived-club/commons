@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import club.revived.commons.distribution.service.Service;
 import club.revived.commons.distribution.service.ServiceSpecifics;
+import club.revived.commons.distribution.service.ServiceStatus;
 import club.revived.commons.distribution.service.ServiceType;
 
 public final class LobbyService extends Service {
@@ -16,11 +17,13 @@ public final class LobbyService extends Service {
       final @NotNull String id,
       final @NotNull String ip,
       final @NotNull ServiceType type,
+      final @NotNull ServiceStatus status,
       final List<OnlinePlayer> onlinePlayers) {
     super(
         id,
         ip,
         type,
+        status,
         ServiceSpecifics.builder()
             .build());
 

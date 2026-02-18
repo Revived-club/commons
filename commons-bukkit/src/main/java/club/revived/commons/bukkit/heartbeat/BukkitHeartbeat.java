@@ -50,6 +50,7 @@ public final class BukkitHeartbeat extends HeartbeatService {
           cluster.getServiceType(),
           cluster.getServiceId(),
           cluster.getIp(),
+          cluster.getStatus(),
           specificsBuilder.build()));
     }, 0, HeartbeatService.INTERVAL, TimeUnit.MILLISECONDS);
   }

@@ -2,6 +2,7 @@ package club.revived.commons.distribution.service;
 
 import java.util.concurrent.CompletableFuture;
 
+import org.jetbrains.annotations.NonBlocking;
 import org.jetbrains.annotations.NotNull;
 
 import club.revived.commons.distribution.Cluster;
@@ -15,16 +16,19 @@ public abstract class Service {
   private final String ip;
   private final ServiceType type;
   private final ServiceSpecifics specifics;
+  private final ServiceStatus status;
 
   public Service(
       final @NotNull String id,
       final @NotNull String ip,
       final @NotNull ServiceType type,
+      final @NotNull ServiceStatus status,
       final @NotNull ServiceSpecifics specifics) {
     this.specifics = specifics;
     this.id = id;
     this.ip = ip;
     this.type = type;
+    this.status = status;
   }
 
   @NotNull
@@ -59,5 +63,10 @@ public abstract class Service {
   @NotNull
   public ServiceType getType() {
     return type;
+  }
+
+  @NotNull
+  public ServiceStatus getStatus() {
+    return status;
   }
 }
