@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$/commons-bukkit" />
             <option value="$PROJECT_DIR$/commons-core" />
             <option value="$PROJECT_DIR$/commons-velocity" />
+            <option value="$PROJECT_DIR$/concordia" />
           </set>
         </option>
       </GradleProjectSettings>
