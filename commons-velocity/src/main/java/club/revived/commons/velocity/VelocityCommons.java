@@ -6,6 +6,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 
 import club.revived.commons.Commons;
 import club.revived.commons.distribution.service.ServiceSpecifics;
+import club.revived.commons.distribution.service.ServiceType;
 import club.revived.commons.velocity.heartbeat.VelocityHeartbeat;
 
 public final class VelocityCommons extends Commons {
@@ -20,6 +21,10 @@ public final class VelocityCommons extends Commons {
     this.serviceSpecifics = serviceSpecifics;
   }
 
+  public void init() {
+    super.init(ServiceType.PROXY);
+  }
+
   @Override
   protected void initHeartbeats() {
     new VelocityHeartbeat(super.cluster, this.proxyServer, this.serviceSpecifics).startTask();
@@ -32,6 +37,6 @@ public final class VelocityCommons extends Commons {
 
   @Override
   protected String getServiceIP() {
-    return null;
+    return System.getenv("SERVICE_IP");
   }
 }

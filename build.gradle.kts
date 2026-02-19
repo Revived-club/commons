@@ -5,10 +5,17 @@ plugins {
 }
 
 group = "club.revived.commons"
-version = "0.1.23"
+version = "0.1.25"
 
 java {
     withSourcesJar()
+}
+
+tasks.register("buildAll") {
+    group = "build"
+    description = "Builds all subprojects in the project."
+
+    dependsOn(subprojects.map { it.tasks.named("build") })
 }
 
 publishing {

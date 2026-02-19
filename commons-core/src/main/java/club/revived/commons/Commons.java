@@ -15,9 +15,10 @@ public abstract class Commons {
 
   protected Cluster cluster;
 
-  public void init() {
+  public void init(final @NotNull ServiceType serviceType) {
     this.initDataRepository();
-    this.initCluster();
+    this.initCluster(serviceType);
+    this.cluster.init();
     this.initMessageHandlers();
     this.initHeartbeats();
   }
@@ -51,7 +52,7 @@ public abstract class Commons {
     return new DatabaseCredentials(username, host, password, 8086, database);
   }
 
-  private void initCluster() {
+  private void initCluster(final @NotNull ServiceType serviceType) {
     final String hostName = System.getenv("HOSTNAME");
     final String host = System.getenv("REDIS_HOST");
     final int port = Integer.parseInt(System.getenv("REDIS_PORT"));
@@ -59,7 +60,7 @@ public abstract class Commons {
     this.cluster = new Cluster(
         new RedisBroker(host, port, ""),
         new RedisCacheStore(host, port, ""),
-        ServiceType.PROXY,
+        serviceType,
         this.getServiceIP(),
         hostName);
   }

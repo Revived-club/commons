@@ -3,6 +3,8 @@ package club.revived.commons.bukkit.heartbeat;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.jetbrains.annotations.NotNull;
+
 import club.revived.commons.bukkit.player.SkinUtils;
 import club.revived.commons.distribution.Cluster;
 import club.revived.commons.distribution.game.OnlinePlayer;
@@ -27,7 +29,7 @@ public final class BukkitHeartbeat extends HeartbeatService {
   }
 
   @Override
-  public ScheduledFuture<?> startTask() {
+  public @NotNull ScheduledFuture<?> startTask() {
     return super.subServer.scheduleAtFixedRate(() -> {
       final var specificsBuilder = this.specifics.toBuilder();
 
