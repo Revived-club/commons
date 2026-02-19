@@ -29,7 +29,7 @@ public final class BukkitDisconnectionQueue extends TimedQueue<UUID> {
     final var limbo = Cluster.getInstance().getLeastLoadedLobby(ServiceType.LIMBO);
     PlayerManager.getInstance().getOptional(uuid)
         .ifPresentOrElse(onlinePlayer -> {
-
+          
         }, () -> {
 
         });

@@ -18,6 +18,10 @@ import club.revived.commons.distribution.service.Service;
 
 public record OnlinePlayer(UUID uuid, String username, String server, String skin, String signature, int ping) {
 
+  public void connect(final String serviceId) {
+
+  }
+
   public void sendMessage(
       final String message) {
     final var whereIs = this.whereIs();

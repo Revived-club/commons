@@ -1,10 +1,14 @@
 package club.revived.commons.velocity;
 
+import java.net.InetAddress;
+
 import org.jetbrains.annotations.NotNull;
 
 import com.velocitypowered.api.proxy.ProxyServer;
 
 import club.revived.commons.Commons;
+import club.revived.commons.distribution.Cluster;
+import club.revived.commons.distribution.message.ConnectMessage;
 import club.revived.commons.distribution.service.ServiceSpecifics;
 import club.revived.commons.velocity.heartbeat.VelocityHeartbeat;
 
@@ -27,11 +31,29 @@ public final class VelocityCommons extends Commons {
 
   @Override
   protected void initMessageHandlers() {
+    Cluster.getInstance().getMessagingService()
+        .registerMessageHandler(ConnectMessage.class, message -> {
+          final var uuid = message.uuid();
 
+          this.proxyServer.getPlayer(uuid).ifPresent(player -> {
+            this.proxyServer.getServer(message.id()).ifPresentOrElse(server -> {
+              player.createConnectionRequest(server).fireAndForget();
+            }, () -> {
+              // TODO: Implement error handling
+            });
+          });
+        });
   }
 
   @Override
   protected String getServiceIP() {
-    return null;
+    try {
+      final var ip = InetAddress.getLocalHost().getHostAddress();
+      final var port = 19132;
+
+      return ip + ":" + port;
+    } catch (final Exception e) {
+      throw new IllegalStateException("Service failed to get IP");
+    }
   }
 }
