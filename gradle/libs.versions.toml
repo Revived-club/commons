@@ -18,6 +18,7 @@ fastboard = "2.1.5"
 protobuf-plugin = "0.9.4"
 protobuf-java = "4.29.3"
 nats = "2.25.1"
+lettuce = "7.4.0.RELEASE"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -37,6 +38,7 @@ influxdb = { module = "com.influxdb:influxdb-client-java", version.ref = "influx
 fastboard = { module = "fr.mrmicky:fastboard", version.ref = "fastboard" }
 protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf-java" }
 nats = { module = "io.nats:jnats", version.ref = "nats" }
+lettuce = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

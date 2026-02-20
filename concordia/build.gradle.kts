@@ -10,6 +10,7 @@ repositories {
 dependencies {
     implementation(libs.jetbrainsannotations)
     implementation(libs.nats)
+    implementation(libs.lettuce)
     api(project(":commons-proto"))
 }
 
@@ -18,4 +19,3 @@ java {
         languageVersion = JavaLanguageVersion.of(25)
     }
 }
-

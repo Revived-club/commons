@@ -7,5 +7,9 @@ import club.revived.commons.orm.annotations.Identifier;
 import club.revived.commons.orm.annotations.Repository;
 
 @Repository("groups")
-public record Group(@Identifier String id, String prefix, int weight, List<Permission> permissions) implements Entity {
+public record Group(
+    @Identifier String id,
+    String prefix,
+    int weight,
+    List<Permission> permissions) implements Entity {
 }
