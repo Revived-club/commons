@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.cloud)
     implementation(libs.cloudannotations)
     implementation(libs.fuzzywuzzy)
+    implementation(libs.fastboard)
 }
 
 java {
