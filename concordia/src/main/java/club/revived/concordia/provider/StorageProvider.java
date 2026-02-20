@@ -7,6 +7,9 @@ import java.util.concurrent.CompletableFuture;
 public interface StorageProvider {
 
   @NotNull
+  void connect(final @NotNull String url);
+
+  @NotNull
   CompletableFuture<byte[]> get(final String key);
 
   @NotNull

@@ -15,3 +15,5 @@ include("commons-core")
 include("commons-bukkit")
 include("commons-velocity")
 include("concordia")
+include("commons-proto")
+

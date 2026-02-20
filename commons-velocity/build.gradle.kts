@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    alias(libs.plugins.shadow)
 }
 
 repositories {
@@ -12,6 +13,7 @@ dependencies {
     implementation(libs.guava)
     api(project(":commons-core"))
     compileOnly(libs.velocity)
+    api(project(":commons-proto"))
 }
 
 java {
@@ -19,3 +21,4 @@ java {
         languageVersion = JavaLanguageVersion.of(25)
     }
 }
+

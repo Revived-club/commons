@@ -2,8 +2,14 @@ package club.revived.concordia.provider;
 
 import java.util.function.Consumer;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface PubSubProvider {
 
-    void publish(final String channel, final byte[] message);
-    void subscribe(final String channel, final Consumer<byte[]> handler);
+  @NotNull
+  void connect(final @NotNull String url);
+
+  void publish(final @NotNull String channel, final byte[] message);
+
+  void subscribe(final @NotNull String channel, final @NotNull Consumer<byte[]> handler);
 }

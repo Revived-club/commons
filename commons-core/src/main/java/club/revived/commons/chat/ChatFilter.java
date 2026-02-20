@@ -1,6 +1,5 @@
 package club.revived.commons.chat;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -8,11 +7,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jetbrains.annotations.NotNull;
 
-import club.revived.commons.ListUtils;
 import club.revived.commons.chat.detector.LinkDetector;
 import club.revived.commons.chat.detector.OffensiveDetector;
 import club.revived.commons.chat.detector.SpamDetector;
-import club.revived.commons.chat.model.FilterResult;
 import club.revived.commons.chat.model.RecentMessageWindow;
 import club.revived.commons.chat.model.Violation;
 

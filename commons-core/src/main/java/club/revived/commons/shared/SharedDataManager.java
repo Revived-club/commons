@@ -9,12 +9,19 @@ import org.jetbrains.annotations.NotNull;
 
 import club.revived.commons.data.DataRepository;
 import club.revived.commons.distribution.Cluster;
+import club.revived.concordia.api.Concordia;
 
 // This class is lwk abt crammed n shit. Not thinking of doing it otherwise really... It's just for saving shitty global data
 public final class SharedDataManager {
 
+  private final Concordia concordia = Concordia.instance();
+
   private static SharedDataManager instance;
   private static final String ID = "shared";
+
+  private void init() {
+
+  }
 
   @NotNull
   public CompletableFuture<SharedData> loadSharedData() {

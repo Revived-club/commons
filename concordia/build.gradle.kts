@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    alias(libs.plugins.shadow)
 }
 
 repositories {
@@ -7,8 +8,9 @@ repositories {
 }
 
 dependencies {
-    api(project(":commons-core"))
     implementation(libs.jetbrainsannotations)
+    implementation(libs.nats)
+    api(project(":commons-proto"))
 }
 
 java {
@@ -16,3 +18,4 @@ java {
         languageVersion = JavaLanguageVersion.of(25)
     }
 }
+
