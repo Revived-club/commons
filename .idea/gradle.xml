@@ -10,6 +10,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/commons-bukkit" />
             <option value="$PROJECT_DIR$/commons-core" />
+            <option value="$PROJECT_DIR$/commons-proto" />
             <option value="$PROJECT_DIR$/commons-velocity" />
             <option value="$PROJECT_DIR$/concordia" />
           </set>

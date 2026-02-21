@@ -37,7 +37,7 @@ public final class NATSPubSubProvider implements PubSubProvider {
   @Override
   public void publish(
       final @NotNull String channel,
-      final @NotNull byte[] message) {
+      final byte[] message) {
     CompletableFuture.runAsync(() -> {
       try {
         this.connection.publish(channel, message);

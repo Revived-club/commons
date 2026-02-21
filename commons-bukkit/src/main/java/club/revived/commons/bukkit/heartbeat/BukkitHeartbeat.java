@@ -12,11 +12,13 @@ import club.revived.commons.distribution.heartbeat.Heartbeat;
 import club.revived.commons.distribution.heartbeat.HeartbeatService;
 import club.revived.commons.distribution.kvbus.providers.broker.MessageBroker;
 import club.revived.commons.distribution.service.ServiceSpecifics;
+import club.revived.concordia.api.Concordia;
 
 import org.bukkit.Bukkit;
 
 public final class BukkitHeartbeat extends HeartbeatService {
 
+  private final Concordia concordia = Concordia.instance();
   private final MessageBroker broker;
   private final Cluster cluster;
 
@@ -47,7 +49,9 @@ public final class BukkitHeartbeat extends HeartbeatService {
 
       specificsBuilder.onlinePlayers(onlinePlayers);
 
-      this.broker.publish("service:heartbeat", new Heartbeat(
+      this.concordia.message(null
+
+      this.broker.publish(, new Heartbeat(
           System.currentTimeMillis(),
           cluster.getServiceType(),
           cluster.getServiceId(),

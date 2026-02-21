@@ -79,7 +79,7 @@ public final class ChatHistoryCommand {
       return;
     }
 
-    List<ChatMessage> filteredLogs = logs.stream()
+    final List<ChatMessage> filteredLogs = logs.stream()
         .sorted(Comparator.comparing(ChatMessage::getSentAt).reversed())
         .collect(Collectors.toList());
 

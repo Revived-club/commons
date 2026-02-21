@@ -34,9 +34,9 @@ public final class Concordia {
   private final CachingService cachingService;
 
   private Concordia(
-          final @NotNull PubSubProvider pubSubProvider,
-          final @NotNull StorageProvider storageProvider,
-          final @NotNull String serviceId) {
+      final @NotNull PubSubProvider pubSubProvider,
+      final @NotNull StorageProvider storageProvider,
+      final @NotNull String serviceId) {
     this.serviceId = serviceId;
 
     this.messagingService = new MessagingService(pubSubProvider, serviceId);
@@ -51,8 +51,8 @@ public final class Concordia {
 
   @NotNull
   public MessageBuilder reply(
-          final @NotNull Envelope original,
-          final @NotNull MessageLite response) {
+      final @NotNull Envelope original,
+      final @NotNull MessageLite response) {
     return messagingService.reply(original, response);
   }
 
@@ -61,40 +61,40 @@ public final class Concordia {
   }
 
   public <T extends MessageLite> void subscribe(
-          final @NotNull Class<T> type,
-          final @NotNull Consumer<T> handler) {
+      final @NotNull Class<T> type,
+      final @NotNull Consumer<T> handler) {
     messagingService.subscribe(type, handler);
   }
 
   public <T extends MessageLite> void subscribe(
-          final @NotNull Class<T> type,
-          final @NotNull Parser<T> parser,
-          final @NotNull Consumer<T> handler) {
+      final @NotNull Class<T> type,
+      final @NotNull Parser<T> parser,
+      final @NotNull Consumer<T> handler) {
     messagingService.subscribe(type, parser, handler);
   }
 
   public <T extends MessageLite> void subscribe(
-          final @NotNull Class<T> type,
-          final @NotNull BiConsumer<T, Envelope> handler) {
+      final @NotNull Class<T> type,
+      final @NotNull BiConsumer<T, Envelope> handler) {
     messagingService.subscribe(type, handler);
   }
 
   public <T extends MessageLite> void subscribe(
-          final @NotNull Class<T> type,
-          final @NotNull Parser<T> parser,
-          final @NotNull BiConsumer<T, Envelope> handler) {
+      final @NotNull Class<T> type,
+      final @NotNull Parser<T> parser,
+      final @NotNull BiConsumer<T, Envelope> handler) {
     messagingService.subscribe(type, parser, handler);
   }
 
   public void registerAck(
-          final @NotNull UUID id,
-          final @NotNull CompletableFuture<Envelope> future) {
+      final @NotNull UUID id,
+      final @NotNull CompletableFuture<Envelope> future) {
     messagingService.registerAck(id, future);
   }
 
   public void registerRequest(
-          final @NotNull UUID id,
-          final @NotNull CompletableFuture<Envelope> future) {
+      final @NotNull UUID id,
+      final @NotNull CompletableFuture<Envelope> future) {
     messagingService.registerRequest(id, future);
   }
 
@@ -112,21 +112,21 @@ public final class Concordia {
   }
 
   public void watch(
-          final @NotNull String key,
-          final @NotNull BiConsumer<String, byte[]> callback) {
+      final @NotNull String key,
+      final @NotNull BiConsumer<String, byte[]> callback) {
     cachingService.watch(key, callback);
   }
 
   public <T extends MessageLite> void watch(
-          final @NotNull String key,
-          final @NotNull Class<T> type,
-          final @NotNull Consumer<T> handler) {
+      final @NotNull String key,
+      final @NotNull Class<T> type,
+      final @NotNull Consumer<T> handler) {
     cachingService.watch(key, type, handler);
   }
 
   public void updateSyncable(
-          final @NotNull String key,
-          final byte[] value) {
+      final @NotNull String key,
+      final byte[] value) {
     cachingService.updateSyncable(key, value);
   }
 
@@ -150,9 +150,9 @@ public final class Concordia {
 
   @NotNull
   public static Concordia init(
-          final @NotNull PubSubProvider pubSubProvider,
-          final @NotNull StorageProvider storageProvider,
-          final @NotNull String serviceId) {
+      final @NotNull PubSubProvider pubSubProvider,
+      final @NotNull StorageProvider storageProvider,
+      final @NotNull String serviceId) {
     if (instance != null) {
       throw new IllegalStateException("already initialized");
     }
@@ -163,10 +163,30 @@ public final class Concordia {
   @Deprecated
   @NotNull
   public static Concordia init(
-          final @NotNull PubSubProvider pubSubProvider,
-          final @NotNull StorageProvider storageProvider,
-          final @NotNull String serviceId,
-          final @NotNull Supplier<Heartbeat> heartbeatSupplier) {
+      final @NotNull PubSubProvider pubSubProvider,
+      final @NotNull StorageProvider storageProvider,
+      final @NotNull String serviceId,
+      final @NotNull Supplier<Heartbeat> heartbeatSupplier) {
     return init(pubSubProvider, storageProvider, serviceId);
+  }
+
+  public static Concordia getInstance() {
+    return instance;
+  }
+
+  public ScheduledExecutorService getScheduler() {
+    return scheduler;
+  }
+
+  public MessagingService getMessagingService() {
+    return messagingService;
+  }
+
+  public HeartbeatService getHeartbeatService() {
+    return heartbeatService;
+  }
+
+  public CachingService getCachingService() {
+    return cachingService;
   }
 }

@@ -1,17 +1,18 @@
 package club.revived.commons.velocity;
 
 import java.net.InetAddress;
+import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
 
 import com.velocitypowered.api.proxy.ProxyServer;
 
 import club.revived.commons.Commons;
-import club.revived.commons.distribution.Cluster;
-import club.revived.commons.distribution.message.ConnectMessage;
 import club.revived.commons.distribution.service.ServiceSpecifics;
 import club.revived.commons.distribution.service.ServiceType;
+import club.revived.commons.proto.ConnectMessage;
 import club.revived.commons.velocity.heartbeat.VelocityHeartbeat;
+import club.revived.concordia.api.Concordia;
 
 public final class VelocityCommons extends Commons {
 
@@ -36,18 +37,17 @@ public final class VelocityCommons extends Commons {
 
   @Override
   protected void initMessageHandlers() {
-    Cluster.getInstance().getMessagingService()
-        .registerMessageHandler(ConnectMessage.class, message -> {
-          final var uuid = message.uuid();
+    Concordia.instance().subscribe(ConnectMessage.class, message -> {
+      final var uuid = UUID.fromString(message.getUuid().getValue());
 
-          this.proxyServer.getPlayer(uuid).ifPresent(player -> {
-            this.proxyServer.getServer(message.id()).ifPresentOrElse(server -> {
-              player.createConnectionRequest(server).fireAndForget();
-            }, () -> {
-              // TODO: Implement error handling
-            });
-          });
+      this.proxyServer.getPlayer(uuid).ifPresent(player -> {
+        this.proxyServer.getServer(message.getId()).ifPresentOrElse(server -> {
+          player.createConnectionRequest(server).fireAndForget();
+        }, () -> {
+          // TODO: Implement error handling
         });
+      });
+    });
   }
 
   @Override

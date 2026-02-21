@@ -15,8 +15,9 @@ import java.util.function.Consumer;
 public final class MessageBuilder {
   private final MessagingService api;
   private final MessageLite message;
-  private String targetService;
+  private String targetService = "";
   private java.util.UUID correlationId;
+  private String topic = "";
   private long timeout = 30;
   private TimeUnit unit = TimeUnit.SECONDS;
   private Consumer<Throwable> onTimeout;
@@ -25,6 +26,12 @@ public final class MessageBuilder {
     this.api = api;
     this.message = message;
     this.correlationId = java.util.UUID.randomUUID();
+  }
+
+  @NotNull
+  public MessageBuilder topic(final @NotNull String topic) {
+    this.topic = topic;
+    return this;
   }
 
   @NotNull
@@ -111,12 +118,13 @@ public final class MessageBuilder {
         .setSender(Concordia.instance().getServiceId())
         .setIsRequest(isRequest)
         .setIsAck(false)
+        .setTopic(this.topic)
         .build();
   }
 
   private UUID toProto(java.util.UUID uuid) {
     return UUID.newBuilder()
-            .setValue(uuid.toString())
+        .setValue(uuid.toString())
         .build();
   }
 
