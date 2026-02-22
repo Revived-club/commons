@@ -11,101 +11,39 @@ message UUID {
   string value = 1;
 }
 
-message Heartbeat {
-  string id = 1;
-  int64 timestamp = 2;
+enum Gamemode {
+  DUEL = 1;
+  FFA = 2;
+  BEDWARS = 3;
 }
 
-message ServerState {
-  string id = 1;
-  double tps = 2;
-  double mspt = 3;
-  int32 players = 4;
-  string host_name = 5;
-  int32 port = 6;
-  bool whitelisted = 7;
+message Team {
+  repeated UUID members = 1;
+  GameMode game_mode = 2;
+  string color = 3;
 }
 
-message ServerHeartbeat {
-  option (pubsub_topic) = "orchestration.server.state";
-
-  ServerState state = 1;
-  int64 timestamp = 2;
+enum GameState {
+  PREPARING = 1;
+  STARTING = 2;
+  RUNNING = 3;
+  ENDING = 4;
+  CLOSED = 5;
+  DISCARDED = 6;
 }
 
-message Envelope {
-  UUID id = 1;
-  UUID correlation_id = 2;
-  string target = 3;
-  bytes payload = 4;
-  string payload_type = 5;
-  string sender = 6;
-  bool is_request = 7;
-  bool is_ack = 8;
+enum ServiceType {
+  PROXY = 1;
+  HUB = 2;
+  GAME = 3;
 }
 
-message SyncUpdate {
-  string key = 1;
-  bytes value = 2;
-  string type = 3;
-}
+message PlayerProfile {
+  option (kv_store_key) = "player:{uuid}";
 
-message BroadcastMessage {
-  string content = 1;
-}
-
-message BroadcastPermissionMessage {
-  string content = 1;
-  string permission = 2;
-}
-
-message ConnectMessage {
   UUID uuid = 1;
-  string id = 2;
-}
+  string username = 2;
+  int64 = last_login 3;
 
-message GroupUpdateMessage {
-  string group_id = 1;
-}
-
-message KickMessage {
-  UUID uuid = 1;
-  string reason = 2;
-}
-
-message PlayerErrorMessage {
-  UUID uuid = 1;
-  string error = 2;
-}
-
-message SendActionbar {
-  UUID uuid = 1;
-  string content = 2;
-}
-
-message SendMessage {
-  UUID uuid = 1;
-  string content = 2;
-}
-
-message SendTitle {
-  UUID uuid = 1;
-  string title = 2;
-  string subtitle = 3;
-  int32 fade_in = 4;
-  int32 stay = 5;
-  int32 fade_out = 6;
-}
-
-message ShutdownMessage {}
-
-message UpdateChatFilter {}
-
-message WhereIsRequest {
-  UUID uuid = 1;
-}
-
-message WhereIsResponse {
-  string server = 1;
-}
+  repeated string permission_groups = 4;
 }

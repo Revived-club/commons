@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package club.revived.commons.proto;
+
+import "options.proto";
+import "commons.proto";
+
+option java_multiple_files = true;
+option java_package = "club.revived.commons.proto";
+
+message GameData {
+  option(kv_store_key) = "game:{ID}";
+  option(kv_list_key) = "games:mode:{GAMEMODE}"
+
+  string id = 1;
+
+  GameType game_type = 2;
+
+  repeated UUID uuids = 3;
+
+  GameState game_state = 4;
+
+  repeated Team teams = 5;
+}
+
+message ServiceState {
+  option(kv_store_key) = "service:{ID}";
+  
+  string id = 1;
+
+
+  double tps = 2;
+
+  double mspt = 3;
+
+  int32 players = 5;
+
+  bool whitelist = 6;
+
+  string hostname : 7;
+
+  int32 port = 8;
+
+  ServiceType serviceType = 9;
+
+}

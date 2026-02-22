@@ -2,11 +2,13 @@ syntax = "proto3";
 
 package club.revived.commons.proto;
 
+import "google/protobuf/descriptor.proto";
+
 option java_multiple_files = true;
 option java_package = "club.revived.commons.proto";
 
-import "google/protobuf/descriptor.proto";
-
 extend google.protobuf.MessageOptions {
   string pubsub_topic = 50001;
+  string kv_store_key = 50002;
+  string kv_list_key = 50003;
 }
