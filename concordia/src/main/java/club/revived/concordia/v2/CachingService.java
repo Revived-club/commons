@@ -2,6 +2,7 @@ package club.revived.concordia.v2;
 
 import org.jetbrains.annotations.NotNull;
 
+import club.revived.commons.proto.CacheEntry;
 import club.revived.concordia.provider.PubSubProvider;
 import club.revived.concordia.provider.StorageProvider;
 
@@ -18,7 +19,9 @@ public final class CachingService {
   }
 
   public void cache(final @NotNull String key, final @NotNull Object value, final long ttl) {
-    final var entry = CacheEntry.newBuilder()    
+    final var entry = CacheEntry.newBuilder()
+      .setKey(key)
+      .setValue(value)
   }
 
 }

@@ -8,24 +8,17 @@ import "commons.proto";
 option java_multiple_files = true;
 option java_package = "club.revived.commons.proto";
 
-message ServiceState {
-  option(kv_store_key) = "service:{ID}";
-  
-  string id = 1;
-
-
-  double tps = 2;
-
-  double mspt = 3;
-
-  int32 players = 5;
-
-  bool whitelist = 6;
-
-  string hostname : 7;
-
-  int32 port = 8;
-
-  ServiceType serviceType = 9;
-
+message Envelope {
+  // ID used to correlate between requests, acknowledgements and responses
+  UUID correlation_id = 1;
+  // ID of the message's target service
+  string target = 2;
+  // Bytes (in ByteString/ByteArray) of the actual message
+  bytes payload = 3;
+  // ID of the message's sender
+  string sender = 4;
+  // Wether the message is a request or not
+  bool is_request = 5;
+  // Wether the message is an acknowledgement or not
+  bool is_ack = 6;
 }

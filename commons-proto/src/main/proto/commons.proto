@@ -7,6 +7,7 @@ import "options.proto";
 option java_multiple_files = true;
 option java_package = "club.revived.commons.proto";
 
+// Proto UUID wrapper
 message UUID {
   string value = 1;
 }
@@ -18,8 +19,11 @@ enum Gamemode {
 }
 
 message Team {
+  // UUIDs of the team members
   repeated UUID members = 1;
+  // Gamemode, important for team sizes, amount of teams etc.
   GameMode game_mode = 2;
+  // The color the team will be displayed with
   string color = 3;
 }
 
@@ -41,9 +45,12 @@ enum ServiceType {
 message PlayerProfile {
   option (kv_store_key) = "player:{uuid}";
 
+  // The player's uuid
   UUID uuid = 1;
+  // The Player's username
   string username = 2;
+  // The last login timestamp as long
   int64 = last_login 3;
-
+  // List of permission groups the player is in
   repeated string permission_groups = 4;
 }

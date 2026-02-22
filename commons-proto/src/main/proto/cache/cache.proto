@@ -11,36 +11,37 @@ option java_package = "club.revived.commons.proto";
 message GameData {
   option(kv_store_key) = "game:{ID}";
   option(kv_list_key) = "games:mode:{GAMEMODE}"
-
+  
+  // Random generated ID
   string id = 1;
-
+  // The type of game. e.a BEDWARS, DUEL etc.
   GameType game_type = 2;
-
+  // UUIDs of all the players in the Game
   repeated UUID uuids = 3;
-
+  // The state the game is in (STARTING, RUNNING etc.)
   GameState game_state = 4;
-
+  // All the teams in the game. Amount varies depending on the GameType
   repeated Team teams = 5;
 }
 
 message ServiceState {
   option(kv_store_key) = "service:{ID}";
-  
+ 
+  // The server's ID, currently this is just the name K8S assigns the pod
   string id = 1;
-
-
+  // The server's TPS as double
   double tps = 2;
-
+  // The server's TPS
   double mspt = 3;
-
+  // Amount of players online on that service
   int32 players = 5;
-
+  // Wether the server is whitelisted or not
   bool whitelist = 6;
-
+  // The server's hostname (either the K8S svc or just the pod's internal IP)
   string hostname : 7;
-
+  // The server's port (either 19132 or 25565)
   int32 port = 8;
-
+  // The server's type. Used for grouping and distinguishing between server types
   ServiceType serviceType = 9;
 
 }
