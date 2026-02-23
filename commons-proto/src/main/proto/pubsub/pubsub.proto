@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package club.revived.commons.proto;
+package club.revived.commons.v1.proto;
 
-import "options.proto";
 import "commons.proto";
+import "options.proto";
 
 option java_multiple_files = true;
 option java_package = "club.revived.commons.proto";

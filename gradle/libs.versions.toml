@@ -19,7 +19,6 @@ protobuf-plugin = "0.9.4"
 protobuf-java = "4.29.3"
 nats = "2.25.1"
 lettuce = "7.4.0.RELEASE"
-
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jedis = { module = "redis.clients:jedis", version.ref = "jedis" }

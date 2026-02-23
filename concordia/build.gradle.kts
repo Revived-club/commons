@@ -11,7 +11,10 @@ dependencies {
     implementation(libs.jetbrainsannotations)
     implementation(libs.nats)
     implementation(libs.lettuce)
+    api(libs.gson)
     api(project(":commons-proto"))
+
+    testImplementation(libs.junit)
 }
 
 java {

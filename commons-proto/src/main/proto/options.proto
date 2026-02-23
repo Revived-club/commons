@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package club.revived.commons.proto;
+package club.revived.commons.v1.proto;
 
 import "google/protobuf/descriptor.proto";
 

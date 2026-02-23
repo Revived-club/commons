@@ -35,10 +35,10 @@ public final class NATSPubSubProvider implements PubSubProvider {
   }
 
   @Override
-  public void publish(
+  public @NotNull CompletableFuture<Void> publish(
       final @NotNull String channel,
       final byte[] message) {
-    CompletableFuture.runAsync(() -> {
+    return CompletableFuture.runAsync(() -> {
       try {
         this.connection.publish(channel, message);
       } catch (final Exception e) {
@@ -48,8 +48,8 @@ public final class NATSPubSubProvider implements PubSubProvider {
   }
 
   @Override
-  public void subscribe(final @NotNull String channel, final @NotNull Consumer<byte[]> handler) {
-    CompletableFuture.runAsync(() -> {
+  public @NotNull CompletableFuture<Void> subscribe(final @NotNull String channel, final @NotNull Consumer<byte[]> handler) {
+    return CompletableFuture.runAsync(() -> {
       try {
         final var dispatcher = this.connection.createDispatcher();
         dispatcher.subscribe(channel, msg -> {

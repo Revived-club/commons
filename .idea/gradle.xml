@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/commons-proto" />
             <option value="$PROJECT_DIR$/commons-velocity" />
             <option value="$PROJECT_DIR$/concordia" />
+            <option value="$PROJECT_DIR$/situlae" />
           </set>
         </option>
       </GradleProjectSettings>

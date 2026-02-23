@@ -12,31 +12,33 @@ import io.lettuce.core.codec.ByteArrayCodec;
 
 public final class RedisStorageProvider implements StorageProvider {
 
-  private StatefulRedisConnection<byte[], byte[]> connection;
-  private RedisAsyncCommands<byte[], byte[]> asyncCommands;
+    private RedisAsyncCommands<byte[], byte[]> asyncCommands;
 
   @Override
   public void connect(final @NotNull String url) {
-    RedisClient client = RedisClient.create(url);
-    this.connection = client.connect(ByteArrayCodec.INSTANCE);
+    final RedisClient client = RedisClient.create(url);
+      final StatefulRedisConnection<byte[], byte[]> connection = client.connect(ByteArrayCodec.INSTANCE);
     this.asyncCommands = connection.async();
   }
 
   @Override
-  public @NotNull CompletableFuture<Void> delete(final @NotNull String key) {
+  @NotNull
+  public CompletableFuture<Void> delete(final @NotNull String key) {
     return asyncCommands.del(key.getBytes())
         .toCompletableFuture()
         .thenApply(deleted -> null);
   }
 
   @Override
-  public @NotNull CompletableFuture<byte[]> get(final @NotNull String key) {
+  @NotNull
+  public CompletableFuture<byte[]> get(final @NotNull String key) {
     return asyncCommands.get(key.getBytes())
         .toCompletableFuture();
   }
 
   @Override
-  public @NotNull CompletableFuture<Void> set(
+  @NotNull
+  public CompletableFuture<Void> set(
       final @NotNull String key,
       final byte[] value) {
     return asyncCommands.set(key.getBytes(), value)

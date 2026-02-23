@@ -1,17 +1,26 @@
 syntax = "proto3";
 
-package club.revived.commons.proto;
+package club.revived.commons.v1.proto;
 
-import "options.proto";
 import "commons.proto";
+import "options.proto";
 
 option java_multiple_files = true;
 option java_package = "club.revived.commons.proto";
 
+message Cachable {
+  option (kv_store_key) = "cache:{KEY}";
+
+  // Key that will be used for storing the object in redis
+  string key = 1;
+  // JSON mapped value
+  string value = 2;
+}
+
 message GameData {
-  option(kv_store_key) = "game:{ID}";
-  option(kv_list_key) = "games:mode:{GAMEMODE}";
-  
+  option (kv_store_key) = "game:{ID}";
+  option (kv_list_key) = "games:mode:{GAMEMODE}";
+
   // Random generated ID
   string id = 1;
   // The type of game. e.a BEDWARS, DUEL etc.
@@ -25,8 +34,8 @@ message GameData {
 }
 
 message ServiceState {
-  option(kv_store_key) = "service:{ID}";
- 
+  option (kv_store_key) = "service:{ID}";
+
   // The server's ID, currently this is just the name K8S assigns the pod
   string id = 1;
   // The server's TPS as double
@@ -43,5 +52,4 @@ message ServiceState {
   int32 port = 8;
   // The server's type. Used for grouping and distinguishing between server types
   ServiceType serviceType = 9;
-
 }

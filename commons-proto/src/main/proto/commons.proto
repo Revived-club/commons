@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package club.revived.commons.proto;
+package club.revived.commons.v1.proto;
 
 import "options.proto";
 
@@ -13,9 +13,10 @@ message UUID {
 }
 
 enum Gamemode {
-  DUEL = 0;
-  FFA = 1;
-  BEDWARS = 2;
+  GAMEMODE_UNSPECIFIED = 0;
+  GAMEMODE_DUEL = 1;
+  GAMEMODE_FFA = 2;
+  GAMEMODE_BEDWARS = 3;
 }
 
 message Team {
@@ -28,18 +29,29 @@ message Team {
 }
 
 enum GameState {
-  PREPARING = 0;
-  STARTING = 1;
-  RUNNING = 2;
-  ENDING = 3;
-  CLOSED = 4;
-  DISCARDED = 5;
+  GAME_STATE_UNSPECIFIED = 0;
+
+  GAME_STATE_PREPARING = 1;
+
+  GAME_STATE_STARTING = 2;
+
+  GAME_STATE_RUNNING = 3;
+
+  GAME_STATE_ENDING = 4;
+
+  GAME_STATE_CLOSED = 5;
+
+  GAME_STATE_DISCARDED = 6;
 }
 
 enum ServiceType {
-  PROXY = 0;
-  HUB = 1;
-  GAME = 2;
+  SERVICE_TYPE_UNSPECIFIED = 0;
+
+  SERVICE_TYPE_PROXY = 1;
+
+  SERVICE_TYPE_HUB = 2;
+
+  SERVICE_TYPE_GAME = 3;
 }
 
 message PlayerProfile {
