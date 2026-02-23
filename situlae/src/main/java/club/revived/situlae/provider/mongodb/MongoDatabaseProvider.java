@@ -77,7 +77,7 @@ public final class MongoDatabaseProvider implements DatabaseProvider<Entity> {
   }
 
   @Override
-  public @NotNull CompletableFuture<Optional<Entity>> findBatch(
+  public @NotNull CompletableFuture<List<Entity>> findBatch(
       final @NotNull Collection<? extends QueryFilter> filters) {
     return null;
   }

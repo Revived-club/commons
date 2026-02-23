@@ -13,33 +13,33 @@ message UUID {
 }
 
 enum Gamemode {
-  DUEL = 1;
-  FFA = 2;
-  BEDWARS = 3;
+  DUEL = 0;
+  FFA = 1;
+  BEDWARS = 2;
 }
 
 message Team {
   // UUIDs of the team members
   repeated UUID members = 1;
   // Gamemode, important for team sizes, amount of teams etc.
-  GameMode game_mode = 2;
+  Gamemode game_mode = 2;
   // The color the team will be displayed with
   string color = 3;
 }
 
 enum GameState {
-  PREPARING = 1;
-  STARTING = 2;
-  RUNNING = 3;
-  ENDING = 4;
-  CLOSED = 5;
-  DISCARDED = 6;
+  PREPARING = 0;
+  STARTING = 1;
+  RUNNING = 2;
+  ENDING = 3;
+  CLOSED = 4;
+  DISCARDED = 5;
 }
 
 enum ServiceType {
-  PROXY = 1;
-  HUB = 2;
-  GAME = 3;
+  PROXY = 0;
+  HUB = 1;
+  GAME = 2;
 }
 
 message PlayerProfile {
@@ -50,7 +50,7 @@ message PlayerProfile {
   // The Player's username
   string username = 2;
   // The last login timestamp as long
-  int64 = last_login 3;
+  int64 last_login = 3;
   // List of permission groups the player is in
   repeated string permission_groups = 4;
 }

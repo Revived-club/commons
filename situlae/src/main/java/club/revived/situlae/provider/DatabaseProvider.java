@@ -24,6 +24,6 @@ public interface DatabaseProvider<T> {
   CompletableFuture<Optional<T>> find(final @NotNull QueryFilter filter);
 
   @NotNull
-  CompletableFuture<Optional<T>> findBatch(final @NotNull Collection<? extends QueryFilter> filters);
+  CompletableFuture<List<T>> findBatch(final @NotNull Collection<? extends QueryFilter> filters);
 
 }
