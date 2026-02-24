@@ -1,47 +1,62 @@
+image: eclipse-temurin:17-jdk-jammy
+
 stages:
   - build
+  - test
   - deploy
 
 variables:
-  REPOSILITE_URL: "https://mvn.revived.club"
-  REPOSILITE_USER: "admin"              
-  REPOSILITE_TOKEN: "$REPOSILITE_TOKEN"
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
 
-build:
+before_script:
+  - chmod +x ./gradlew
+
+
+build_all:
   stage: build
-  image: gradle:9.6-jdk17
   script:
-    - gradle clean build
+    - ./gradlew buildAll
   artifacts:
     paths:
-      - build/libs/*.jar
-    expire_in: 1 hour
+      - build/libs/
+      - subprojects/**/build/libs/
+    expire_in: 1 week
+
+
+test_all:
+  stage: test
+  script:
+    - ./gradlew test
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - **/build/test-results/test/*.xml
+        - subprojects/**/build/test-results/test/*.xml
+
 
 deploy_snapshots:
   stage: deploy
-  image: gradle:9.6-jdk17
+  image: eclipse-temurin:17-jdk-jammy
   only:
     - branches
     - merge_requests
   except:
     - tags
   script:
-    - echo "Deploying snapshot to Reposilite..."
-    - gradle publish \
-        -PreposiliteUrl=${REPOSILITE_URL}/snapshots/ \
-        -PreposiliteUser=${REPOSILITE_USER} \
-        -PreposilitePassword=${REPOSILITE_TOKEN} \
-        -PversionType=snapshot
+    - ./gradlew publish \
+        -PrepoUrl=https://mvn.revived.club/snapshots/ \
+        -PrepoUser=$REPOSILITE_USER \
+        -PrepoPass=$REPOSILITE_TOKEN
+
 
 deploy_releases:
   stage: deploy
-  image: gradle:9.6-jdk17
+  image: eclipse-temurin:17-jdk-jammy
   only:
     - tags
   script:
-    - echo "Deploying release to Reposilite..."
-    - gradle publish \
-        -PreposiliteUrl=${REPOSILITE_URL}/releases/ \
-        -PreposiliteUser=${REPOSILITE_USER} \
-        -PreposilitePassword=${REPOSILITE_TOKEN} \
-        -PversionType=release
+    - ./gradlew publish \
+        -PrepoUrl=https://mvn.revived.club/releases/ \
+        -PrepoUser=$REPOSILITE_USER \
+        -PrepoPass=$REPOSILITE_TOKEN
